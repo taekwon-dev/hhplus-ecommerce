@@ -147,6 +147,68 @@ paths:
                 $ref: '#/components/schemas/ProblemDetail'
               example:
                 message: Internal server error.
+  /api/orders:
+    post:
+      tags:
+        - 주문 API
+      summary: 주문 요청
+      description: 즉시 구매 또는 장바구니를 통해 주문 요청 합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequestDto'
+            example:
+              addressId: 101
+              items:
+                - goodsId: 2
+                  quantity: 1
+                  size: M
+                  color: Black
+              totalPrice: 129000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+              example:
+                orderId: 1
+                addressId: 101
+                recipientName: Youn Hanghae
+                phoneNumber: 010-1234-5678
+                orderItems:
+                  - goodsId: 2
+                    quantity: 1
+                    size: M
+                    color: Black
+                totalPrice: 129000
+                status: PAYMENT_PENDING
+        '404':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                goodsNotFound:
+                  summary: 주문 상품을 찾을 수 없음
+                  value:
+                    message: 주문하려는 상품을 찾을 수 없습니다.
+                addressNotFound:
+                  summary: 배송지 정보를 찾을 수 없음
+                  value:
+                    message: 배송지 정보를 찾을 수 없습니다.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
 components:
   schemas:
     GoodsResponseDto:
@@ -213,6 +275,59 @@ components:
         currentPoints:
           type: integer
           example: 10000
+    OrderRequestDto:
+      type: object
+      properties:
+        addressId:
+          type: integer
+          example: 101
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        totalPrice:
+          type: integer
+          example: 129000
+    OrderResponseDto:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        addressId:
+          type: integer
+          example: 101
+        recipientName:
+          type: string
+          example: Youn Hanghae
+        phoneNumber:
+          type: string
+          example: 010-1234-5678
+        orderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        totalPrice:
+          type: integer
+          example: 129000
+        status:
+          type: string
+          example: PAYMENT_PENDING
+    OrderItemDto:
+      type: object
+      properties:
+        goodsId:
+          type: integer
+          example: 2
+        quantity:
+          type: integer
+          example: 1
+        size:
+          type: string
+          example: M
+        color:
+          type: string
+          example: Black
     ProblemDetail:
       type: object
       properties:
