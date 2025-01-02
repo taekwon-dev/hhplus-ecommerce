@@ -1,14 +1,10 @@
 package kr.hhplus.be.server.api.order;
 
-import kr.hhplus.be.server.api.order.dto.OrderItemDto;
-import kr.hhplus.be.server.api.order.dto.OrderRequestDto;
-import kr.hhplus.be.server.api.order.dto.OrderResponseDto;
+import kr.hhplus.be.server.api.order.dto.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -18,12 +14,23 @@ public class OrderController {
     public OrderResponseDto orders(@RequestBody OrderRequestDto orderRequestDto) {
         return new OrderResponseDto(
                 10L,
-                101L,
+                orderRequestDto.addressId(),
                 "Youn Hanghae",
                 "010-1234-5678",
-                List.of(new OrderItemDto(2L, 1, "M", "Black")),
+                orderRequestDto.items(),
                 129_000,
                 "PAYMENT_PENDING"
+        );
+    }
+
+    @PostMapping("/orders/payments")
+    public PaymentResponseDto payments(@RequestBody PaymentRequestDto paymentRequestDto) {
+        return new PaymentResponseDto(
+                1L,
+                paymentRequestDto.orderId(),
+                "COMPLETED",
+                paymentRequestDto.paymentMethod(),
+                paymentRequestDto.amount()
         );
     }
 }

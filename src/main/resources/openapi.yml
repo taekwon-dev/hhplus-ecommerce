@@ -150,7 +150,7 @@ paths:
   /api/orders:
     post:
       tags:
-        - 주문 API
+        - 주문 / 결제 API
       summary: 주문 요청
       description: 즉시 구매 또는 장바구니를 통해 주문 요청 합니다.
       requestBody:
@@ -209,6 +209,51 @@ paths:
                 $ref: '#/components/schemas/ProblemDetail'
               example:
                 message: Internal server error.
+  /api/orders/payments:
+    post:
+      tags:
+        - 주문 / 결제 API
+      summary: 결제 요청
+      description: 주문 건에 대해 결제 요청을 합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestDto'
+            example:
+              orderId: 1
+              paymentMethod: POINT
+              amount: 50000
+      responses:
+        '200':
+          description: 결제 완료
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseDto'
+              example:
+                paymentId: 1
+                orderId: 1
+                status: COMPLETED
+                paymentMethod: POINT
+                amount: 50000
+        '400':
+          description: 잔액 부족
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: 잔액이 부족하여 결제를 진행할 수 없습니다.
+        '404':
+          description: 주문 정보를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: 결제하려는 주문 정보를 찾을 수 없습니다.
 components:
   schemas:
     GoodsResponseDto:
@@ -328,6 +373,36 @@ components:
         color:
           type: string
           example: Black
+    PaymentRequestDto:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        paymentMethod:
+          type: string
+          example: POINT
+        amount:
+          type: integer
+          example: 50000
+    PaymentResponseDto:
+      type: object
+      properties:
+        paymentId:
+          type: integer
+          example: 1
+        orderId:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: COMPLETED
+        paymentMethod:
+          type: string
+          example: POINT
+        amount:
+          type: integer
+          example: 50000
     ProblemDetail:
       type: object
       properties:
