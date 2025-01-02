@@ -110,3 +110,167 @@ sequenceDiagram
 - 총 3주 간의 일정을 기준으로 Milestone을 작성했습니다.
 - 1MD = 평균 5~6시간을 사용할 수 있습니다. 
 - 선착순 쿠폰 발급 시스템, 실시간 데이터 스트림 등에서 사용될 수 있는 기술들을 사용해본 경험이 없어서 2주차 남은 시간과, 3주차는 해당 기술에 대한 학습과 구현에 초점을 맞췄습니다.
+
+----
+
+## ERD
+
+![](docs/erd_diagram.png)
+
+<details>
+<summary>DDL</summary>
+
+```sql
+CREATE TABLE USERS
+(
+  id            INT PRIMARY KEY,
+  username      VARCHAR(50)  NOT NULL,
+  password_hash VARCHAR(100) NOT NULL,
+  email         VARCHAR(100) NOT NULL UNIQUE,
+  nickname      VARCHAR(50)  NOT NULL
+);
+
+CREATE TABLE DELIVERY_ADDRESSES
+(
+  id             INT PRIMARY KEY,
+  user_id        INT NOT NULL,
+  recipient_name VARCHAR(50) NOT NULL,
+  phone_number   VARCHAR(20) NOT NULL,
+  address_line1  VARCHAR(100) NOT NULL,
+  address_line2  VARCHAR(100),
+  postal_code    VARCHAR(10),
+  is_default     BOOLEAN DEFAULT FALSE NOT NULL
+);
+
+CREATE TABLE COMPANIES
+(
+  id   INT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE BRANDS
+(
+  id         INT PRIMARY KEY,
+  company_id INT NOT NULL,
+  name       VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE CATEGORIES
+(
+  id        INT PRIMARY KEY,
+  name      VARCHAR(50) NOT NULL,
+  parent_id INT DEFAULT NULL
+);
+
+CREATE TABLE GOODS
+(
+  id       INT PRIMARY KEY,
+  brand_id INT NOT NULL,
+  name     VARCHAR(50) NOT NULL,
+  price    INT NOT NULL,
+  quantity INT NOT NULL,
+  options  JSON
+);
+
+CREATE TABLE GOODS_CATEGORIES
+(
+  id          INT PRIMARY KEY,
+  goods_id    INT NOT NULL,
+  category_id INT NOT NULL
+);
+
+CREATE TABLE CARTS
+(
+  id       INT PRIMARY KEY,
+  user_id  INT NOT NULL,
+  goods_id INT NOT NULL
+);
+
+CREATE TABLE ORDERS
+(
+  id                  INT PRIMARY KEY,
+  user_id             INT NOT NULL,
+  delivery_address_id INT NOT NULL,
+  total_price         INT NOT NULL,
+  status              VARCHAR(20) NOT NULL COMMENT 'PAYMENT_PENDING, PAYMENT_COMPLETED, ORDER_CANCELLED, PAYMENT_EXPIRED'
+);
+
+CREATE TABLE ORDER_ITEMS
+(
+  id       INT PRIMARY KEY,
+  order_id INT NOT NULL,
+  goods_id INT NOT NULL
+);
+
+CREATE TABLE COUPONS
+(
+  coupon_id      INT PRIMARY KEY,
+  coupon_code    VARCHAR(50) NOT NULL,
+  discount_type  VARCHAR(20) NOT NULL COMMENT 'FIXED, RATE',
+  discount_value INT NOT NULL,
+  start_date     DATETIME NOT NULL,
+  end_date       DATETIME NOT NULL,
+  issued_count   INT NOT NULL,
+  max_issuable   INT NOT NULL
+);
+
+CREATE TABLE COUPON_USAGES
+(
+  id        INT PRIMARY KEY,
+  order_id  INT NOT NULL,
+  coupon_id INT NOT NULL
+);
+
+CREATE TABLE USER_COUPONS
+(
+  id        INT PRIMARY KEY,
+  user_id   INT NOT NULL,
+  coupon_id INT NOT NULL,
+  status    VARCHAR(20) NOT NULL COMMENT 'AVAILABLE, USED, EXPIRED'
+);
+
+CREATE TABLE POINTS
+(
+  id      INT PRIMARY KEY,
+  user_id INT NOT NULL,
+  balance INT NOT NULL
+);
+
+CREATE TABLE POINT_TRANSACTIONS
+(
+  id               INT PRIMARY KEY,
+  user_id          INT NOT NULL,
+  transaction_type VARCHAR(20) NOT NULL COMMENT 'CHARGE, USAGE',
+  amount           INT NOT NULL
+);
+
+CREATE TABLE PAYMENT_METHODS
+(
+  id           INT PRIMARY KEY,
+  payment_type VARCHAR(20) NOT NULL COMMENT 'CREDIT_CARD, MOBILE_PAYMENT, POINT_PAYMENT',
+  name         VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE PAYMENTS
+(
+  id                INT PRIMARY KEY,
+  order_id          INT NOT NULL,
+  payment_method_id INT NOT NULL,
+  price             INT NOT NULL,
+  status            VARCHAR(20) NOT NULL COMMENT 'COMPLETED, CANCELLED, FAILED'
+);
+```
+</details>
+
+> ### 주요 고민 포인트 🧐
+ - #### 시즌별 추천, 프로모션, 이벤트 등을 고려해서 한 상품이 다양한 분류에 속할 수 있게 만들자.
+   - 관련 테이블: `GOODS`, `GOODS_CATEGORIES`, `CATEGORIES` 
+
+ - #### 포인트 기반의 결제 외 외부 결제 수단이 추가되는 상황을 고려하자.
+   - 결국 유저로 하여금 편하게 결제할 수 있도록 하는 것이 매우 높은 우선순위를 가지고 추가될 기능이라고 판단해서 초반 설계 떄 포인트 결제를 하나의 결제 수단으로 관리할 수 있도록 했습니다. 따라서 신용카드, 모바일 결제 등이 추가되어도 기존 구조를 수정하지 않고 바로 적용할 수 있습니다. 
+   - 관련 테이블: `POINTS`, `POINT_TRANSACTIONS`, `PAYMENT_METHODS`, `PAYMENTS`
+
+ - #### 상품의 옵션을 우선 당장은 JSON 타입을 사용하자. 
+   - 과제 진행 후반에 의류 상품의 옵션이 (사이즈, 컬러, 핏, 소재 등) 다양하게 들어올 수 있다는 것이 떠올랐고 이를 정규화된 설계로 시작하기 보단 우선 JSON 타입으로 관리해서 진행해보려고 합니다. 
+   - 기획을 보충하고 나서 이 부분을 수정 하려고 합니다.
+   - 관련 테이블: `GOODS`
