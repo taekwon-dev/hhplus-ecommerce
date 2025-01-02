@@ -274,3 +274,12 @@ CREATE TABLE PAYMENTS
    - 과제 진행 후반에 의류 상품의 옵션이 (사이즈, 컬러, 핏, 소재 등) 다양하게 들어올 수 있다는 것이 떠올랐고 이를 정규화된 설계로 시작하기 보단 우선 JSON 타입으로 관리해서 진행해보려고 합니다. 
    - 기획을 보충하고 나서 이 부분을 수정 하려고 합니다.
    - 관련 테이블: `GOODS`
+
+----
+
+## API Specification via Swagger
+
+애플리케이션 구동 후 아래 주소에서 Swagger UI를 통해 API 명세를 확인할 수 있습니다. 
+
+### 🔗 **Swagger UI Link**
+[👉 http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
