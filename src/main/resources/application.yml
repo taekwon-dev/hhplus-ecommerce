@@ -20,6 +20,9 @@ spring:
     properties:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
+  web:
+    resources:
+      static-locations: classpath:/
 
 ---
 spring.config.activate.on-profile: local, test
@@ -29,3 +32,9 @@ spring:
     url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
     username: application
     password: application
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: E-Commerce API
+        url: openapi.yml

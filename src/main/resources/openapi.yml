@@ -1,0 +1,411 @@
+openapi: 3.0.1
+info:
+  title: E-Commerce API
+  version: 0.1.0
+paths:
+  /api/goods:
+    get:
+      tags:
+        - 상품 API
+      summary: 상품 목록 조회
+      description: '각 상품별 상품 정보 (ID, 이름, 가격, 잔여수량 등)를 조회합니다.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GoodsResponseDto'
+              example:
+                - id: 1
+                  name: T-shirt
+                  price: 19900
+                  quantity: 100
+                  colors:
+                    - Red
+                    - Blue
+                    - Green
+                  sizes:
+                    - S
+                    - M
+                    - L
+                - id: 2
+                  name: Jeans
+                  price: 49900
+                  quantity: 50
+                  colors:
+                    - Black
+                    - Blue
+                  sizes:
+                    - M
+                    - L
+                    - XL
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
+  /api/goods/best-sellers:
+    get:
+      tags:
+        - 상품 API
+      summary: 베스트셀러 상품 목록 조회
+      description: 최근 3일 동안 가장 많이 팔린 상품 목록을 조회합니다.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BestSellerGoodsResponseDto'
+              example:
+                - id: 1
+                  name: T-shirt
+                  sales: 150
+                  price: 19900
+                  mostSoldColor: Red
+                  mostSoldSize: M
+                - id: 2
+                  name: Jeans
+                  sales: 95
+                  price: 49900
+                  mostSoldColor: Black
+                  mostSoldSize: L
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
+  /api/points:
+    get:
+      tags:
+        - 포인트 API
+      summary: 포인트 조회
+      description: 사용자의 현재 포인트 잔액을 조회합니다.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponseDto'
+              example:
+                currentPoints: 10000
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
+    post:
+      tags:
+        - 포인트 API
+      summary: 포인트 충전
+      description: '사용자의 포인트를 특정 금액만큼 충전합니다. (최소 충전 금액은 **1,000원**)'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PointRequestDto'
+            example:
+              amount: 10000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponseDto'
+              example:
+                currentPoints: 20000
+        '400':
+          description: 충전 요청 금액 부족
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: '충전 금액은 최소 1,000원 이상이어야 합니다.'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
+  /api/orders:
+    post:
+      tags:
+        - 주문 / 결제 API
+      summary: 주문 요청
+      description: 즉시 구매 또는 장바구니를 통해 주문 요청 합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequestDto'
+            example:
+              addressId: 101
+              items:
+                - goodsId: 2
+                  quantity: 1
+                  size: M
+                  color: Black
+              totalPrice: 129000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+              example:
+                orderId: 1
+                addressId: 101
+                recipientName: Youn Hanghae
+                phoneNumber: 010-1234-5678
+                orderItems:
+                  - goodsId: 2
+                    quantity: 1
+                    size: M
+                    color: Black
+                totalPrice: 129000
+                status: PAYMENT_PENDING
+        '404':
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                goodsNotFound:
+                  summary: 주문 상품을 찾을 수 없음
+                  value:
+                    message: 주문하려는 상품을 찾을 수 없습니다.
+                addressNotFound:
+                  summary: 배송지 정보를 찾을 수 없음
+                  value:
+                    message: 배송지 정보를 찾을 수 없습니다.
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: Internal server error.
+  /api/orders/payments:
+    post:
+      tags:
+        - 주문 / 결제 API
+      summary: 결제 요청
+      description: 주문 건에 대해 결제 요청을 합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestDto'
+            example:
+              orderId: 1
+              paymentMethod: POINT
+              amount: 50000
+      responses:
+        '200':
+          description: 결제 완료
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseDto'
+              example:
+                paymentId: 1
+                orderId: 1
+                status: COMPLETED
+                paymentMethod: POINT
+                amount: 50000
+        '400':
+          description: 잔액 부족
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: 잔액이 부족하여 결제를 진행할 수 없습니다.
+        '404':
+          description: 주문 정보를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                message: 결제하려는 주문 정보를 찾을 수 없습니다.
+components:
+  schemas:
+    GoodsResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: T-shirt
+        price:
+          type: integer
+          example: 19900
+        quantity:
+          type: integer
+          example: 100
+        colors:
+          type: array
+          items:
+            type: string
+          example:
+            - Red
+            - Blue
+            - Green
+        sizes:
+          type: array
+          items:
+            type: string
+          example:
+            - S
+            - M
+            - L
+    BestSellerGoodsResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: T-shirt
+        sales:
+          type: integer
+          example: 150
+        price:
+          type: integer
+          example: 19900
+        mostSoldColor:
+          type: string
+          example: Red
+        mostSoldSize:
+          type: string
+          example: M
+    PointRequestDto:
+      type: object
+      properties:
+        amount:
+          type: integer
+          example: 10000
+    PointResponseDto:
+      type: object
+      properties:
+        currentPoints:
+          type: integer
+          example: 10000
+    OrderRequestDto:
+      type: object
+      properties:
+        addressId:
+          type: integer
+          example: 101
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        totalPrice:
+          type: integer
+          example: 129000
+    OrderResponseDto:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        addressId:
+          type: integer
+          example: 101
+        recipientName:
+          type: string
+          example: Youn Hanghae
+        phoneNumber:
+          type: string
+          example: 010-1234-5678
+        orderItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemDto'
+        totalPrice:
+          type: integer
+          example: 129000
+        status:
+          type: string
+          example: PAYMENT_PENDING
+    OrderItemDto:
+      type: object
+      properties:
+        goodsId:
+          type: integer
+          example: 2
+        quantity:
+          type: integer
+          example: 1
+        size:
+          type: string
+          example: M
+        color:
+          type: string
+          example: Black
+    PaymentRequestDto:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        paymentMethod:
+          type: string
+          example: POINT
+        amount:
+          type: integer
+          example: 50000
+    PaymentResponseDto:
+      type: object
+      properties:
+        paymentId:
+          type: integer
+          example: 1
+        orderId:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: COMPLETED
+        paymentMethod:
+          type: string
+          example: POINT
+        amount:
+          type: integer
+          example: 50000
+    ProblemDetail:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Internal server error.
