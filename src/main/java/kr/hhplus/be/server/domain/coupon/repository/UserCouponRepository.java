@@ -11,4 +11,6 @@ public interface UserCouponRepository {
     UserCoupon save(UserCoupon userCoupon);
 
     List<Coupon> findAvailableCouponsByUser(User user);
+
+    boolean existsByUserAndCoupon(User user, Coupon coupon);
 }

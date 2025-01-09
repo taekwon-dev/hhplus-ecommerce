@@ -3,6 +3,7 @@ package kr.hhplus.be.server.unit.domain.coupon.service;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
 import kr.hhplus.be.server.domain.coupon.exception.MaxIssuableCountExceededException;
 import kr.hhplus.be.server.domain.coupon.repository.CouponCoreRepository;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponCoreRepository;
@@ -73,6 +74,7 @@ class CouponServiceTest {
         UserCoupon userCoupon = new UserCoupon(user, coupon);
         
         when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(userCouponCoreRepository.existsByUserAndCoupon(user, coupon)).thenReturn(false);
         when(userCouponCoreRepository.save(userCoupon)).thenReturn(userCoupon);
         when(couponCoreRepository.save(coupon)).thenReturn(coupon);
 
@@ -83,6 +85,7 @@ class CouponServiceTest {
         assertThat(issuedCoupon.getIssuedCount()).isEqualTo(1);
 
         verify(couponCoreRepository, times(1)).findByIdWithLock(coupon.getId());
+        verify(userCouponCoreRepository, times(1)).existsByUserAndCoupon(user, coupon);
         verify(userCouponCoreRepository, times(1)).save(userCoupon);
         verify(couponCoreRepository, times(1)).save(coupon);
     }
@@ -101,5 +104,22 @@ class CouponServiceTest {
         // when & then
         assertThatThrownBy(() -> couponService.issue(user, coupon.getId()))
                 .isInstanceOf(MaxIssuableCountExceededException.class);
+    }
+
+    @DisplayName("Coupon 발급 - 실패 - 이미 발급 받은 쿠폰")
+    @Test
+    void issue_Fail_AlreadyIssuedCoupon() {
+        // given
+        User user = UserFixture.USER();
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
+
+        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(userCouponCoreRepository.existsByUserAndCoupon(user, coupon)).thenReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> couponService.issue(user, coupon.getId()))
+                .isInstanceOf(AlreadyIssuedCouponException.class);
     }
 }

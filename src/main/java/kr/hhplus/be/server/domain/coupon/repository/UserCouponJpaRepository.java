@@ -12,4 +12,6 @@ public interface UserCouponJpaRepository extends JpaRepository<UserCoupon, Long>
 
     @Query("SELECT uc.coupon FROM UserCoupon uc WHERE uc.user = :user")
     List<Coupon> findAvailableCouponsByUser(User user);
+
+    boolean existsByUserAndCoupon(User user, Coupon coupon);
 }

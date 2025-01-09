@@ -79,4 +79,44 @@ class UserCouponCoreRepositoryTest {
 
         verify(userCouponJpaRepository, times(1)).findAvailableCouponsByUser(user);
     }
+
+    @DisplayName("User의 Coupon 발급 여부 조회 - 성공 - 발급 이력 없음")
+    @Test
+    void existsByUserAndCoupon() {
+        // given
+        User user = UserFixture.USER();
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
+
+        when(userCouponJpaRepository.existsByUserAndCoupon(user, coupon)).thenReturn(false);
+
+        // when
+        boolean result = userCouponCoreRepository.existsByUserAndCoupon(user, coupon);
+
+        // then
+        assertThat(result).isFalse();
+
+        verify(userCouponJpaRepository, times(1)).existsByUserAndCoupon(user, coupon);
+    }
+
+    @DisplayName("User의 Coupon 발급 여부 조회 - 성공 - 발급 이력 있음")
+    @Test
+    void existsByUserAndCoupon_withUserCouponExists() {
+        // given
+        User user = UserFixture.USER();
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
+
+        when(userCouponJpaRepository.existsByUserAndCoupon(user, coupon)).thenReturn(true);
+
+        // when
+        boolean result = userCouponCoreRepository.existsByUserAndCoupon(user, coupon);
+
+        // then
+        assertThat(result).isTrue();
+
+        verify(userCouponJpaRepository, times(1)).existsByUserAndCoupon(user, coupon);
+    }
 }

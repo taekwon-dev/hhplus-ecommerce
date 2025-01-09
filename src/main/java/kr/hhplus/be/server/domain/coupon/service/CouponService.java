@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.coupon.service;
 
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
 import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -27,6 +28,9 @@ public class CouponService {
     public Coupon issue(User user, long couponId) {
         Coupon coupon = couponRepository.findByIdWithLock(couponId);
         coupon.issue();
+        if (userCouponRepository.existsByUserAndCoupon(user, coupon)) {
+            throw new AlreadyIssuedCouponException();
+        }
         userCouponRepository.save(new UserCoupon(user, coupon));
         return couponRepository.save(coupon);
     }

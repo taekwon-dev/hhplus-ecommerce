@@ -23,4 +23,9 @@ public class UserCouponCoreRepository implements UserCouponRepository {
     public List<Coupon> findAvailableCouponsByUser(User user) {
         return jpaRepository.findAvailableCouponsByUser(user);
     }
+
+    @Override
+    public boolean existsByUserAndCoupon(User user, Coupon coupon) {
+        return jpaRepository.existsByUserAndCoupon(user, coupon);
+    }
 }
