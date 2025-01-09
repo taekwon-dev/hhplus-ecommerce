@@ -68,9 +68,9 @@ CREATE TABLE order_product
 CREATE TABLE coupon
 (
     id                 BIGINT PRIMARY KEY AUTO_INCREMENT,
-    coupon_code        VARCHAR(50) NOT NULL,
+    code        VARCHAR(50) NOT NULL,
     discount_type      VARCHAR(20) NOT NULL COMMENT 'FIXED, RATE',
-    discount_value     INT         NOT NULL,
+    discount_amount     INT         NOT NULL,
     start_date         DATETIME    NOT NULL,
     end_date           DATETIME    NOT NULL,
     issued_count       INT         NOT NULL,
