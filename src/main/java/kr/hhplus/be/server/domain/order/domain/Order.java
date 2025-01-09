@@ -29,7 +29,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "order")
     private List<OrderProduct> orderProducts;
 
     public Order(Long id, User user) {
