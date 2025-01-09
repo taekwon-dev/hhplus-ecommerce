@@ -118,7 +118,6 @@ class CouponServiceTest {
                 .isInstanceOf(AlreadyIssuedCouponException.class);
     }
 
-
     /**
      * 20명이 동시에 쿠폰 발급을 시도하고, 모든 쿠폰이 발급된 경우 예외 발생을 검증하는 테스트입니다. (성공: 10명, 실패: 10명)
      */

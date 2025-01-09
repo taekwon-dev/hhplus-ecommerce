@@ -109,8 +109,8 @@ CREATE TABLE payment
 (
     id             BIGINT PRIMARY KEY AUTO_INCREMENT,
     order_id       BIGINT      NOT NULL,
-    payment_method VARCHAR(20) NOT NULL COMMENT 'CREDIT_CARD, MOBILE_PAYMENT, POINT_PAYMENT',
-    price          INT         NOT NULL,
+    method VARCHAR(20) NOT NULL COMMENT 'CREDIT_CARD, MOBILE_PAYMENT, POINT_PAYMENT',
+    amount          INT         NOT NULL,
     status         VARCHAR(20) NOT NULL COMMENT 'COMPLETED, CANCELLED, FAILED',
     FOREIGN KEY (order_id) REFERENCES `order` (id) ON DELETE CASCADE
 );
