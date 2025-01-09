@@ -230,7 +230,48 @@ sequenceDiagram
 
 ## API Specification via Swagger
 
-애플리케이션 구동 후 아래 주소에서 Swagger UI를 통해 API 명세를 확인할 수 있습니다. 
+#### FYI. 이번 주차에 API 까지 완성이 되지 않아 `Try it`은 동작하지 않습니다! 서버 구동 후 [Link](http://localhost:8080/swagger-ui/index.html) 에서도 확인 가능합니다 :-)  
 
-### 🔗 **Swagger UI Link**
-[👉 http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+<details>
+<summary>Point API</summary>
+
+![](docs/get_point.png)
+
+![](docs/post_charge_point.png)
+
+![](docs/post_deduct_point.png)
+
+</details>
+
+<details>
+<summary>Product API</summary>
+
+![](docs/get_all_products.png)
+
+![](docs/get_top_sailing_products.png)
+
+</details>
+
+
+<details>
+<summary>Coupon API</summary>
+
+![](docs/get_available_coupons.png)
+
+![](docs/post_issue_coupon.png)
+
+</details>
+
+<details>
+<summary>Order API</summary>
+
+![](docs/post_order.png)
+
+</details>
+
+<details>
+<summary>Payment API</summary>
+
+![](docs/post_payment.png)
+
+</details>
