@@ -5,7 +5,10 @@ import kr.hhplus.be.server.api.point.controller.request.PointDeductRequest;
 import kr.hhplus.be.server.api.point.controller.response.PointResponse;
 import kr.hhplus.be.server.api.point.facade.PointFacade;
 import kr.hhplus.be.server.domain.point.domain.Point;
+import kr.hhplus.be.server.domain.point.domain.PointTransaction;
+import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
 import kr.hhplus.be.server.domain.point.service.PointService;
+import kr.hhplus.be.server.domain.point.service.PointTransactionService;
 import kr.hhplus.be.server.domain.user.domain.User;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.UserFixture;
@@ -27,6 +30,9 @@ class PointFacadeTest {
 
     @Mock
     private PointService pointService;
+
+    @Mock
+    private PointTransactionService pointTransactionService;
 
     @InjectMocks
     private PointFacade pointFacade;
@@ -62,9 +68,12 @@ class PointFacadeTest {
         int amount = 1_000;
         Point expectedPoint = new Point(1L, user, balance + amount);
         PointAddRequest request = new PointAddRequest(user.getId(), amount);
+        PointTransactionType type = PointTransactionType.CHARGE;
+        PointTransaction pointTransaction = new PointTransaction(user, amount, type);
 
         when(userService.findUserById(user.getId())).thenReturn(user);
         when(pointService.addPoints(user, amount)).thenReturn(expectedPoint);
+        when(pointTransactionService.recordPointTransaction(user, amount, type)).thenReturn(pointTransaction);
 
         // when
         PointResponse response = pointFacade.addPoints(request);
@@ -75,6 +84,7 @@ class PointFacadeTest {
 
         verify(userService, times(1)).findUserById(user.getId());
         verify(pointService, times(1)).addPoints(user, amount);
+        verify(pointTransactionService, times(1)).recordPointTransaction(user, amount, type);
     }
 
     @DisplayName("Point 차감 - 성공")
@@ -86,9 +96,12 @@ class PointFacadeTest {
         int amount = 1_000;
         Point expectedPoint = new Point(1L, user, balance - amount);
         PointDeductRequest request = new PointDeductRequest(user.getId(), amount);
+        PointTransactionType type = PointTransactionType.USAGE;
+        PointTransaction pointTransaction = new PointTransaction(user, amount, type);
 
         when(userService.findUserById(user.getId())).thenReturn(user);
         when(pointService.deductPoints(user, amount)).thenReturn(expectedPoint);
+        when(pointTransactionService.recordPointTransaction(user, amount, type)).thenReturn(pointTransaction);
 
         // when
         PointResponse response = pointFacade.deductPoints(request);
@@ -99,5 +112,6 @@ class PointFacadeTest {
 
         verify(userService, times(1)).findUserById(user.getId());
         verify(pointService, times(1)).deductPoints(user, amount);
+        verify(pointTransactionService, times(1)).recordPointTransaction(user, amount, type);
     }
 }
