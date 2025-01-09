@@ -61,4 +61,24 @@ class OrderServiceTest {
 
         verify(orderCoreRepository, times(1)).save(order);
     }
+
+    @DisplayName("Order ID 기반 조회 - 성공")
+    @Test
+    void findById() {
+        // given
+        User user = UserFixture.USER();
+        Order order = new Order(user);
+
+        when(orderCoreRepository.findById(1L)).thenReturn(order);
+
+        // when
+        Order savedOrder = orderService.findById(1L);
+
+        // then
+        assertThat(savedOrder.getUser()).isEqualTo(order.getUser());
+        assertThat(savedOrder.getStatus()).isEqualTo(order.getStatus());
+        assertThat(savedOrder.getOrderProducts().size()).isZero();
+
+        verify(orderCoreRepository, times(1)).findById(1L);
+    }
 }

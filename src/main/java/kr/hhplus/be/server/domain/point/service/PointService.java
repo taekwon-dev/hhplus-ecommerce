@@ -20,14 +20,14 @@ public class PointService {
 
     @Transactional
     public Point addPoints(User user, int amount) {
-        Point point = pointRepository.findByUser(user);
+        Point point = pointRepository.findByUserWithLock(user);
         point.add(amount);
         return pointRepository.save(point);
     }
 
     @Transactional
     public Point deductPoints(User user, int amount) {
-        Point point = pointRepository.findByUser(user);
+        Point point = pointRepository.findByUserWithLock(user);
         point.deduct(amount);
         return pointRepository.save(point);
     }

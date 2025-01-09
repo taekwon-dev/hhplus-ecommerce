@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.unit.domain.order.repository;
 
 import kr.hhplus.be.server.domain.order.domain.Order;
+import kr.hhplus.be.server.domain.order.exception.OrderNotFoundException;
 import kr.hhplus.be.server.domain.order.repository.OrderCoreRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderJpaRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -12,7 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,5 +46,36 @@ class OrderCoreRepositoryTest {
         assertThat(savedOrder.getOrderProducts().size()).isZero();
 
         verify(orderJpaRepository, times(1)).save(order);
+    }
+
+    @DisplayName("Order ID 기반 조회 - 성공")
+    @Test
+    void findById() {
+        // given
+        User user = UserFixture.USER();
+        Order order = new Order(user);
+
+        when(orderJpaRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        Order foundOrder = orderCoreRepository.findById(1L);
+
+        // then
+        assertThat(foundOrder.getUser()).isEqualTo(order.getUser());
+        assertThat(foundOrder.getStatus()).isEqualTo(order.getStatus());
+        assertThat(foundOrder.getOrderProducts().size()).isZero();
+
+        verify(orderJpaRepository, times(1)).findById(1L);
+    }
+
+    @DisplayName("Order ID 기반 조회 - 실패 - Order 찾지 못한 경우")
+    @Test
+    void findById_Fail_NotExist() {
+        // given
+        when(orderJpaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> orderCoreRepository.findById(1L))
+                .isInstanceOf(OrderNotFoundException.class);
     }
 }

@@ -69,7 +69,7 @@ class OrderFacadeTest {
         List<OrderRequest> requests = List.of(request);
 
         when(userService.findUserById(user.getId())).thenReturn(user);
-        when(productService.validateStock(productQuantityDtos)).thenReturn(true);
+        doNothing().when(productService).validateStock(productQuantityDtos);
         when(productService.findById(productId)).thenReturn(product);
         when(orderService.order(user, orderDetailDtos)).thenReturn(expectedOrder);
 

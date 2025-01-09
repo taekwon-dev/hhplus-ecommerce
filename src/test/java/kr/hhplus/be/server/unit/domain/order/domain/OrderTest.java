@@ -47,4 +47,40 @@ class OrderTest {
         // then
         assertThat(order.getOrderProducts().size()).isOne();
     }
+
+    @DisplayName("Order 에 포함된 상품 총 결제 금액 계산 - 성공")
+    @Test
+    void calculateTotalPrice() {
+        // given
+        User user = UserFixture.USER();
+        String name = "라넌큘러스 오버핏 맨투맨";
+        Category category = CategoryFixture.create("상의");
+        int price = 12_000;
+        int stockQuantity = 100;
+        Product product = new Product(name, category, price, stockQuantity);
+        Order order = new Order(user);
+        order.addOrderProduct(product, 1);
+
+        // when
+        int totalPrice = order.calculateTotalPrice();
+
+        // then
+        assertThat(totalPrice).isEqualTo(price);
+    }
+
+
+
+    @DisplayName("Order 결제 완료 상태 변경 - 성공")
+    @Test
+    void complete() {
+        // given
+        User user = UserFixture.USER();
+        Order order = new Order(user);
+
+        // when
+        order.complete();
+
+        // then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+    }
 }

@@ -56,7 +56,7 @@ class PointServiceTest {
         Point point = new Point(1L, user, balance);
         Point expectedPoint = new Point(1L, user, balance + amount);
 
-        when(pointCoreRepository.findByUser(user)).thenReturn(point);
+        when(pointCoreRepository.findByUserWithLock(user)).thenReturn(point);
         when(pointCoreRepository.save(point)).thenReturn(expectedPoint);
 
         // when
@@ -68,7 +68,7 @@ class PointServiceTest {
         assertThat(savedPoint.getUser()).isEqualTo(expectedPoint.getUser());
         assertThat(savedPoint.getBalance()).isEqualTo(expectedPoint.getBalance());
 
-        verify(pointCoreRepository, times(1)).findByUser(user);
+        verify(pointCoreRepository, times(1)).findByUserWithLock(user);
         verify(pointCoreRepository, times(1)).save(expectedPoint);
     }
 
@@ -82,7 +82,7 @@ class PointServiceTest {
         Point point = new Point(1L, user, balance);
         Point expectedPoint = new Point(1L, user, balance - amount);
 
-        when(pointCoreRepository.findByUser(user)).thenReturn(point);
+        when(pointCoreRepository.findByUserWithLock(user)).thenReturn(point);
         when(pointCoreRepository.save(point)).thenReturn(expectedPoint);
 
         // when
@@ -94,7 +94,7 @@ class PointServiceTest {
         assertThat(savedPoint.getUser()).isEqualTo(expectedPoint.getUser());
         assertThat(savedPoint.getBalance()).isZero();
 
-        verify(pointCoreRepository, times(1)).findByUser(user);
+        verify(pointCoreRepository, times(1)).findByUserWithLock(user);
         verify(pointCoreRepository, times(1)).save(expectedPoint);
     }
 }

@@ -12,12 +12,17 @@ public class PointCoreRepository implements PointRepository {
     private final PointJpaRepository jpaRepository;
 
     @Override
+    public Point save(Point point) {
+        return jpaRepository.save(point);
+    }
+
+    @Override
     public Point findByUser(User user) {
         return jpaRepository.findPointByUser(user).orElseGet(() -> new Point(user, 0));
     }
 
     @Override
-    public Point save(Point point) {
-        return jpaRepository.save(point);
+    public Point findByUserWithLock(User user) {
+        return jpaRepository.findPointByUserWithLock(user).orElseGet(() -> new Point(user, 0));
     }
 }

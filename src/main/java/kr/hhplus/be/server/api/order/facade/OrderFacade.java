@@ -3,7 +3,6 @@ package kr.hhplus.be.server.api.order.facade;
 import kr.hhplus.be.server.api.order.controller.request.OrderRequest;
 import kr.hhplus.be.server.api.order.controller.response.OrderResponse;
 import kr.hhplus.be.server.domain.order.domain.Order;
-import kr.hhplus.be.server.domain.order.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.order.service.dto.OrderDetailDto;
 import kr.hhplus.be.server.domain.product.domain.Product;
@@ -28,10 +27,7 @@ public class OrderFacade {
     public OrderResponse order(long userId, List<OrderRequest> requests) {
         User user = userService.findUserById(userId);
         List<ProductQuantityDto> productQuantityDtos = mapToProductQuantityDtos(requests);
-
-        if (!productService.validateStock(productQuantityDtos)) {
-            throw new InsufficientStockException();
-        }
+        productService.validateStock(productQuantityDtos);
 
         List<OrderDetailDto> orderDetailDtos = mapToOrderDetailDtos(requests);
         Order order = orderService.order(user, orderDetailDtos);

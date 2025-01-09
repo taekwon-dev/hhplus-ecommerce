@@ -47,4 +47,14 @@ public class Order {
         OrderProduct orderProduct = new OrderProduct(this, product, quantity);
         orderProducts.add(orderProduct);
     }
+
+    public int calculateTotalPrice() {
+        return orderProducts.stream()
+                .mapToInt(orderProduct -> orderProduct.getProduct().getPrice() * orderProduct.getQuantity())
+                .sum();
+    }
+
+    public void complete() {
+        this.status = OrderStatus.PAYMENT_COMPLETED;
+    }
 }

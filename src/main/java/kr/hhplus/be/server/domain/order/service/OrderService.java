@@ -20,13 +20,16 @@ public class OrderService {
     @Transactional
     public Order order(User user, List<OrderDetailDto> orderDetailDtos) {
         Order order = new Order(user);
-
         for (OrderDetailDto orderDetailDto : orderDetailDtos) {
             Product product = orderDetailDto.product();
             int quantity = orderDetailDto.quantity();
             order.addOrderProduct(product, quantity);
         }
-
         return orderRepository.save(order);
+    }
+
+    @Transactional(readOnly = true)
+    public Order findById(Long id) {
+        return orderRepository.findById(id);
     }
 }

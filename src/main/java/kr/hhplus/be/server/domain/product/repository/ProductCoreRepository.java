@@ -20,4 +20,9 @@ public class ProductCoreRepository implements ProductRepository {
     public Product findById(Long id) {
         return jpaRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
+
+    @Override
+    public Product findByIdWithLock(Long id) {
+        return jpaRepository.findByIdWithLock(id).orElseThrow(ProductNotFoundException::new);
+    }
 }
