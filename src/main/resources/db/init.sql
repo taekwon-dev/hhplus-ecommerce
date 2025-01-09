@@ -59,7 +59,6 @@ CREATE TABLE order_product
     id         BIGINT PRIMARY KEY AUTO_INCREMENT,
     order_id   BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
-    price      INT    NOT NULL,
     quantity   INT    NOT NULL,
     FOREIGN KEY (order_id) REFERENCES `order` (id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE
