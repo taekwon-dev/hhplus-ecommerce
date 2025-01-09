@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserCoreRepositoryTest {
+class UserCoreRepositoryTest {
 
     @Mock
     private UserJpaRepository userJpaRepository;
@@ -28,10 +28,11 @@ public class UserCoreRepositoryTest {
     private UserCoreRepository userCoreRepository;
 
     @DisplayName("User 저장 - 성공")
+    @Test
     void saveUser() {
         // given
         User user = UserFixture.USER();
-        User expectedUser = new User(1L, user.getUsername(), user.getAddress());
+        User expectedUser = UserFixture.USER(1L);
         when(userJpaRepository.save(user)).thenReturn(expectedUser);
 
         // when
@@ -45,7 +46,7 @@ public class UserCoreRepositoryTest {
         assertThat(savedUser.getAddressLine2()).isEqualTo(expectedUser.getAddressLine2());
         assertThat(savedUser.getPostalCode()).isEqualTo(expectedUser.getPostalCode());
 
-        verify(userJpaRepository, times(1)).save(expectedUser);
+        verify(userJpaRepository, times(1)).save(user);
     }
 
     @DisplayName("User ID 기반 조회 - 성공")
