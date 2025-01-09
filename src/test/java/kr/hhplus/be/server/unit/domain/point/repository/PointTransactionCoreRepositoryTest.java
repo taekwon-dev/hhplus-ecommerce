@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -43,8 +45,31 @@ class PointTransactionCoreRepositoryTest {
         // then
         assertThat(savedPointTransaction.getUser()).isEqualTo(pointTransaction.getUser());
         assertThat(savedPointTransaction.getAmount()).isEqualTo(pointTransaction.getAmount());
-        assertThat(savedPointTransaction.getType()).isEqualTo(pointTransaction.getType());
+        assertThat(savedPointTransaction.getTransactionType()).isEqualTo(pointTransaction.getTransactionType());
 
         verify(pointTransactionJpaRepository, times(1)).save(pointTransaction);
+    }
+
+    @DisplayName("PointTransaction User 기반 포인트 충전/이용 기록 조회 - 성공")
+    @ParameterizedTest
+    @CsvSource({"CHARGE", "USAGE"})
+    void findByUser(PointTransactionType type) {
+        User user = UserFixture.USER();
+        int amount = 1_000;
+        PointTransaction pointTransaction = new PointTransaction(user, amount, type);
+        List<PointTransaction> pointTransactions = List.of(pointTransaction);
+
+        when(pointTransactionJpaRepository.findByUser(user)).thenReturn(pointTransactions);
+
+        // when
+        List<PointTransaction> foundPointTransactions = pointTransactionCoreRepository.findByUser(user);
+
+        // then
+        assertThat(foundPointTransactions).hasSize(1);
+        assertThat(foundPointTransactions.get(0).getUser()).isEqualTo(pointTransaction.getUser());
+        assertThat(foundPointTransactions.get(0).getAmount()).isEqualTo(pointTransaction.getAmount());
+        assertThat(foundPointTransactions.get(0).getTransactionType()).isEqualTo(pointTransaction.getTransactionType());
+
+        verify(pointTransactionJpaRepository, times(1)).findByUser(user);
     }
 }

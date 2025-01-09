@@ -26,6 +26,6 @@ class PointTransactionTest {
         // then
         assertThat(pointTransaction.getUser()).isEqualTo(user);
         assertThat(pointTransaction.getAmount()).isEqualTo(amount);
-        assertThat(pointTransaction.getType()).isEqualTo(type);
+        assertThat(pointTransaction.getTransactionType()).isEqualTo(type);
     }
 }

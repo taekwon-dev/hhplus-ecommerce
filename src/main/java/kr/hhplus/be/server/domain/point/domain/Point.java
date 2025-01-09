@@ -50,7 +50,7 @@ public class Point {
     }
 
     private void validateAddition(int amount) {
-        if (amount < 0 || amount % 1_000 != 0) {
+        if (amount <= 0 || amount % 1_000 != 0) {
             throw new InvalidPointAdditionAmountException();
         }
     }
@@ -61,7 +61,7 @@ public class Point {
     }
 
     private void validateDeduction(int amount) {
-        if (amount < 0) {
+        if (amount <= 0) {
             throw new InvalidPointDeductionAmountException();
         }
 

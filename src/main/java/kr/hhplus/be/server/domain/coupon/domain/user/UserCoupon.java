@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(name = "user_coupon")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

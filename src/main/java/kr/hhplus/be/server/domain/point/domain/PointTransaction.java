@@ -24,11 +24,11 @@ public class PointTransaction {
     private int amount;
 
     @Enumerated(EnumType.STRING)
-    private PointTransactionType type;
+    private PointTransactionType transactionType;
 
-    public PointTransaction(User user, int amount, PointTransactionType type) {
+    public PointTransaction(User user, int amount, PointTransactionType transactionType) {
         this.user = user;
         this.amount = amount;
-        this.type = type;
+        this.transactionType = transactionType;
     }
 }
