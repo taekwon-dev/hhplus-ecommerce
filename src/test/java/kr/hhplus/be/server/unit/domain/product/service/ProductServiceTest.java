@@ -1,12 +1,16 @@
 package kr.hhplus.be.server.unit.domain.product.service;
 
+import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.repository.ProductCoreRepository;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
+import kr.hhplus.be.server.domain.user.domain.User;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
+import kr.hhplus.be.server.util.fixture.ProductFixture;
+import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -133,5 +137,47 @@ class ProductServiceTest {
         // when & then
         assertThatThrownBy(() -> productService.deductStock(productQuantityDtos))
                 .isInstanceOf(InsufficientStockException.class);
+    }
+
+    @DisplayName("Product 모든 목록 조회 - 성공")
+    @Test
+    void findAllProducts() {
+        // given
+        Product product1 = ProductFixture.create(1L, 1_000, 10);
+        Product product2 = ProductFixture.create(2L, 1_000, 10);
+        Product product3 = ProductFixture.create(3L, 1_000, 10);
+
+        when(productCoreRepository.findAllProducts()).thenReturn(List.of(product1, product2, product3));
+
+        // when
+        List<Product> products = productService.findAllProducts();
+
+        // then
+        assertThat(products).hasSize(3);
+        assertThat(products).contains(product1, product2, product3);
+
+        verify(productCoreRepository, times(1)).findAllProducts();
+    }
+
+    @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
+    @Test
+    void findTopSellingProducts() {
+        // given
+        Product product = ProductFixture.create(1L, 1_000, 10);
+
+        User user = UserFixture.USER(1L);
+        Order order = new Order(user);
+        order.addOrderProduct(product, 1);
+
+        when(productCoreRepository.findTopSellingProducts()).thenReturn(List.of(product));
+
+        // when
+        List<Product> products = productService.findTopSellingProducts();
+
+        // then
+        assertThat(products).hasSize(1);
+        assertThat(products).contains(product);
+
+        verify(productCoreRepository, times(1)).findTopSellingProducts();
     }
 }

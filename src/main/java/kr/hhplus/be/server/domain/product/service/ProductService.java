@@ -41,4 +41,14 @@ public class ProductService {
             product.deductStockQuantity(productQuantityDto.quantity());
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<Product> findAllProducts() {
+        return productRepository.findAllProducts();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> findTopSellingProducts() {
+        return productRepository.findTopSellingProducts();
+    }
 }

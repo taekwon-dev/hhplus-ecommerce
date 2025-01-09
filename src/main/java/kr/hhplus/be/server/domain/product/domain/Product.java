@@ -1,17 +1,18 @@
 package kr.hhplus.be.server.domain.product.domain;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.BaseEntity;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "id")
 @Entity
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,5 +45,21 @@ public class Product {
             throw new InsufficientStockException();
         }
         this.stockQuantity -= quantity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Product product)) {
+            return false;
+        }
+        return Objects.equals(id, product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

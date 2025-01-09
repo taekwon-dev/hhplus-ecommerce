@@ -5,6 +5,10 @@ import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+import static kr.hhplus.be.server.domain.order.domain.OrderStatus.*;
+
 @Repository
 @RequiredArgsConstructor
 public class ProductCoreRepository implements ProductRepository {
@@ -24,5 +28,15 @@ public class ProductCoreRepository implements ProductRepository {
     @Override
     public Product findByIdWithLock(Long id) {
         return jpaRepository.findByIdWithLock(id).orElseThrow(ProductNotFoundException::new);
+    }
+
+    @Override
+    public List<Product> findAllProducts() {
+        return jpaRepository.findAll();
+    }
+
+    @Override
+    public List<Product> findTopSellingProducts() {
+        return jpaRepository.findTopSellingProducts(List.of(PAYMENT_COMPLETED, DELIVERED));
     }
 }

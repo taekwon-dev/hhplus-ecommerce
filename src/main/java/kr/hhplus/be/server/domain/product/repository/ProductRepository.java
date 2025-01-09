@@ -11,4 +11,8 @@ public interface ProductRepository {
     Product findById(Long id);
 
     Product findByIdWithLock(Long id);
+
+    List<Product> findAllProducts();
+
+    List<Product> findTopSellingProducts();
 }

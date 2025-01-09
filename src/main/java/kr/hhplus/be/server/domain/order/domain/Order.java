@@ -1,22 +1,22 @@
 package kr.hhplus.be.server.domain.order.domain;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.domain.BaseEntity;
 import kr.hhplus.be.server.domain.order.domain.product.OrderProduct;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "id")
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,5 +56,21 @@ public class Order {
 
     public void complete() {
         this.status = OrderStatus.PAYMENT_COMPLETED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Order order)) {
+            return false;
+        }
+        return Objects.equals(id, order.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
