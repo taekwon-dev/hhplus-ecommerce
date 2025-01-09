@@ -84,7 +84,7 @@ class PointTest {
         Point point = new Point(user, balance);
 
         // when & then
-        assertThatThrownBy(() -> point.add(-1_200))
+        assertThatThrownBy(() -> point.add(1_200))
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 

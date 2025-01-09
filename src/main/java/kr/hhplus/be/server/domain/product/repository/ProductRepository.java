@@ -8,5 +8,5 @@ public interface ProductRepository {
 
     Product save(Product product);
 
-    // 상품 목록 조회 (페이징)
+    Product findById(Long id);
 }
