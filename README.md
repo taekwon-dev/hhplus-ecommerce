@@ -14,66 +14,21 @@
   - 최소 충전 금액은 1,000원 입니다.
   - 유저는 현재 잔액을 조회할 수 있습니다.
 - #### 주문 / 결제
-  - 유저는 즉시 주문 방식과 장바구니를 통한 주문 방식을 통해 주문 할 수 있습니다. 
+  - 유저는 **즉시 주문 방식**과 **장바구니를 통한 주문 방식**을 통해 주문할 수 있습니다. 
   - 장바구니는 유저가 다른 기기에서 로그인하더라도 내용이 유지되어야 합니다. 
-  - 결제는 충전된 잔액이 충분할 경우에만 가능하며, 결제 시 총 결제 금액만큼 잔액이 차감됩니다.
+  - 주문은 기본적으로 **결제 대기 상태**로 저장되며, 결제 여부에 따라 주문 상태가 업데이트됩니다.
+  - 주문 시점의 재고 확인
+    - 주문 단계 시점에 재고 여부를 확인하지만, 재고를 확보하지는 않습니다. 
+    - 주문 후, 결제 시점에서 상품 재고를 다시 확인 하며, 재고가 부족할 경우 결제는 실패 처리됩니다.
+  - 장바구니에 있던 상품이 결제 완료된 경우, 해당 상품을 장바구니에서 자동으로 제거합니다.   
+  - 충전된 잔액이 충분할 경우에만 결제 가능하며, 결제 시 총 결제 금액만큼 잔액이 차감됩니다.
   - 데이터 분석을 목적으로 성공적으로 결제 이벤트가 발생할 경우 실시간으로 주문/결제 정보를 데이터 플랫폼에 전송해야 합니다.
 - #### 쿠폰
   - 쿠폰은 고정 할인 방식과 비율 할인 방식 두 가지로 발급될 수 있습니다.
-  - 유저는 선착순으로 한정된 수량의 할인 쿠폰을 최초 한 번만 발급받을 수 있습니다. 
+  - 유저는 선착순으로 한정된 수량의 할인 쿠폰을 최초 한 번만 발급 받을 수 있습니다. 
   - 유저는 발급 받은 할인 쿠폰 목록을 조회할 수 있습니다.
   - 유저는 쿠폰은 발급 시점을 기준으로 일정 기간 내에 사용해야 하며, 유효기간이 지나면 사용할 수 없습니다.
-  - 유저는 주문 결제 시 유효한 쿠폰을 통해 전체 주문금액에 대해 할인 혜택을 받을 수 있습니다.
-
-----
-
-## Use Cases
-
-- #### 유저가 상품 목록 중 하나를 즉시 주문한다. 
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant System
-
-    User->>System: Request goods list
-    System->>User: Response goods list
-    User->>System: Request order (Option: {Color: Black, Size: S}, Quantity: 1)
-```
-
-- #### 유저가 여러 상품을 장바구니에 등록한 뒤, 한번에 모든 상품을 주문한다.
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant System
-
-    User->>System: Request goods list
-    System->>User: Response goods list
-
-    loop Add to cart
-        User->>System: Add Product 1 to cart (Option: {Color: Black, Size: S}, Quantity: 1)
-        User->>System: Add Product 2 to cart (Option: {Color: White, Size: M}, Quantity: 2)
-        User->>System: Add Product 3 to cart (Option: {Color: Black, Size: L}, Quantity: 3)
-    end
-    User->>System: Request order from cart
-```
-
-- #### 유저는 주문한 상품을 결제한다. (쿠폰 적용 포함) 
-
-```mermaid
-sequenceDiagram
-  User->>System: Request order (from cart)
-  System->>User: Retrieve order item(s) and available coupons
-  User->>System: Request payment (with the discounted amount)
-  System->>System: Check user balance
-  alt Sufficient balance
-    System->>DataPlatform: Send order data in real-time
-    System->>User: Confirm payment
-  else Insufficient balance
-    System->>User: Payment failed due to insufficient balance
-  end
-```
+  - 유저는 주문 결제 시 유효한 쿠폰을 통해 전체 주문 금액에 대해 할인 혜택을 받을 수 있습니다.
 
 ----
 
@@ -85,21 +40,175 @@ sequenceDiagram
 
 > 다수의 인스턴스로 어플리케이션이 동작하더라도 기능에 문제가 없도록 작성하도록 합니다.
 
-- 위 기본 요구사항에 맞춰 다중화된 서버 인스턴스 환경을 전제로 진행합니다.  
+- 위 기본 요구사항에 맞춰 다중화된 서버 인스턴스 환경을 전제로 진행합니다.
 
 #### ② 단일 데이터베이스 인스턴스
 
-- 실시간 쿠폰 발급 등 데이터베이스에 부하가 커질 경우, 다중화된 데이터베이스 환경 또는 다른 방법을 시도해보려고 합니다. 첫 시작은 익숙한 단일 데이터베이스 환경으로 시작합니다.
-- 웹 애플리케이션 서버가 수평적으로 확장된 구조이므로, 주요 기능에 필요한 동시성 제어는 기본적으로 데이터베이스 레이어에서 우선 처리해보려고 합니다.
+- 이번 주차 주요 비즈니스 로직 구현(상품 재고, 결제, 선착순 쿠폰 발급 등)에 필요한 **동시성 제어는 데이터베이스 차원에서 처리**했습니다.
 
-#### ③ 캐시
+#### ③ 메시지 큐
 
-- 최근 3일 간 가장 많이 팔린 상위 5개 상품 정보 조회 등 통계 기반으로 조회하는 기능을 처리할 때 캐시를 활용하면 보다 효율적으로 처리 가능할 것으로 기대되어 추가했습니다. 
-- 최근 3일 간 가장 많이 팔린 상위 5개 상품 조회의 경우, 일정 주기로 발생한 이벤트를 취합한 결과를 조회하는 과정이므로 특히 캐시 사용이 적절하다고 판단했습니다.
+> 데이터 분석을 목적으로 성공적으로 결제 이벤트가 발생할 경우 실시간으로 주문/결제 정보를 데이터 플랫폼에 전송해야 합니다.
 
-#### ④ 메시지 큐
+- 이번 주차 구현에서는 데이터 플랫폼이 애플리케이션 외부에 있다는 점을 전제로 하여, 상세 구현은 제외하고 플랫폼 호출 부분만 구현했습니다.
 
-- 데이터 분석을 목적으로 성공적으로 결제 이벤트가 발생할 경우 실시간으로 주문/결제 정보를 데이터 플랫폼에 전송하기 위해서 Message Queue, REST API 등 적절한 기술을 선택 하여 활용할 예정입니다.
+----
+
+
+## Use Cases
+
+- #### 유저는 상품을 주문한다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant User as User
+    participant API as API Gateway
+    participant OrderFacade as Order Facade
+    participant ProductService as Product Service
+    participant StockService as Stock Service
+    participant OrderService as Order Service
+
+%% 1. Order Creation Request
+    User ->>+ API: POST /orders
+    API ->>+ OrderFacade: Request Order Creation
+
+%% 2. Product Validity Check
+    OrderFacade ->>+ ProductService: Validate All Products
+    alt Product Validation Failure
+        ProductService --x OrderFacade: ProductNotFoundException
+        API -->> User: Exception Response
+    else Product Validation Success
+        ProductService -->>- OrderFacade: All Products Validated
+    end
+
+%% 3. Stock Check
+    OrderFacade ->>+ StockService: Check Stock for All Products
+    alt Insufficient Stock
+        StockService --x OrderFacade: ProductOutOfStockException
+        API -->> User: Exception Response
+    else Sufficient Stock
+        StockService -->>- OrderFacade: Stock Checked for All Products
+    end
+
+%% 4. Order Data Creation
+    OrderFacade ->>+ OrderService: Create and Save Order Data 
+    OrderService -->>- OrderFacade: Order ID Created
+
+%% 5. User Response
+    OrderFacade -->> API: Return Order ID
+    API -->> User: Return Order Form Page URL via Location Header
+```
+
+- #### 유저는 주문 상품을 결제한다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant User as User
+    participant API as API Gateway
+    participant PaymentFacade as Payment Facade
+    participant ProductService as Product Service
+    participant StockService as Stock Service
+    participant PaymentService as Payment Service
+    participant OrderService as Order Service
+    participant CartService as Cart Service
+
+%% 1. Payment Request
+    User ->>+ API: POST /orders/payments
+    API ->>+ PaymentFacade: Payment Request
+
+%% 2. Validate Products via Facade
+    PaymentFacade ->>+ ProductService: Validate All Products
+    alt Product Validation Failure
+        ProductService --x PaymentFacade: ProductNotFoundException
+        API -->> User: Exception Response
+    else Product Validation Success
+        ProductService -->>- PaymentFacade: All Products Validated
+    end
+
+%% 3. Check Stock via Facade
+    PaymentFacade ->>+ StockService: [LOCK 🔒] Check Stock for All Products 
+    alt Insufficient Stock
+        StockService --x PaymentFacade: ProductOutOfStockException
+        API -->> User: Exception Response
+    else Sufficient Stock
+        StockService -->>- PaymentFacade: Stock Checked for All Products
+    end
+
+%% 4. User Payment Balance Check via Facade
+    PaymentFacade ->>+ PaymentService: [LOCK 🔒] Check User Balance 
+    PaymentService -->>- PaymentFacade: User Balance Information
+
+    alt Insufficient Balance
+        PaymentService -->> PaymentFacade: InsufficientBalanceException
+        API -->> User: Exception Response
+    else Sufficient Balance
+    %% 5. Payment Processing via Facade
+
+    %% 5.1 Deduct Balance
+        PaymentFacade ->>+ PaymentService: Deduct Balance
+        PaymentService -->>- PaymentFacade: Balance Deducted
+
+    %% 5.2 Deduct Stock
+        PaymentFacade ->>+ StockService: Deduct Stock 
+        StockService -->>- PaymentFacade: Stock Deducted
+
+    %% 5.3 Save Order Data via Order Service
+        PaymentFacade ->>+ OrderService: Save Order Data
+        OrderService -->>- PaymentFacade: Order Data Saved
+    
+    %% 5.4 Remove Ordered Products from Cart
+        PaymentFacade ->>+ CartService: Remove Ordered Products from Cart If Exists
+        CartService -->>- PaymentFacade: Products Removed from Cart
+
+    %% 6. Send Data to Data Platform (Async)
+        PaymentFacade ->>+ DataPlatform: [ASYNC] Produce Order Data When Payment Confirmed 
+        DataPlatform -->>- PaymentFacade: Ack (Order Data Received) 
+
+    %% 7. Payment Success Response
+        PaymentFacade -->> API: Payment Confirmed
+        API -->> User: Payment Success Response
+    end
+```
+
+- #### 유저는 제한된 수량의 쿠폰 발급을 요청한다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant User as User
+    participant API as API Gateway
+    participant CouponService as Coupon Service
+
+%% 1. 쿠폰 발급 요청
+    User ->>+ API: POST /coupons/issues
+    API ->>+ CouponService: Issue Coupon
+
+%% 2. 유효성 검사 (중복 여부 확인)
+    CouponService ->>+ CouponService: Check if user already has coupon
+    alt User Already Has Coupon
+        CouponService --x CouponService: CouponAlreadyIssuedException
+        API -->> User: Exception Response 
+    end
+
+%% 3. 쿠폰 재고 확인 및 감소
+    CouponService ->>+ CouponService: [LOCK 🔒] Check Coupon Stock
+    alt No Available Stock
+        CouponService --x CouponService: CouponOutOfStockException
+        API -->> User: Exception Response
+    end
+
+%% 4. 유저-쿠폰 관계 저장
+    CouponService ->>+ CouponService: Save User-Coupon Relation
+
+%% 5. 응답 반환
+    CouponService -->> API: Coupon Issued
+    API -->> User: Success Response
+```
 
 ----
 
@@ -117,169 +226,52 @@ sequenceDiagram
 
 ![](docs/erd_diagram.png)
 
-<details>
-<summary>DDL</summary>
-
-```sql
-CREATE TABLE USERS
-(
-  id            INT PRIMARY KEY,
-  username      VARCHAR(50)  NOT NULL,
-  password_hash VARCHAR(100) NOT NULL,
-  email         VARCHAR(100) NOT NULL UNIQUE,
-  nickname      VARCHAR(50)  NOT NULL
-);
-
-CREATE TABLE DELIVERY_ADDRESSES
-(
-  id             INT PRIMARY KEY,
-  user_id        INT NOT NULL,
-  recipient_name VARCHAR(50) NOT NULL,
-  phone_number   VARCHAR(20) NOT NULL,
-  address_line1  VARCHAR(100) NOT NULL,
-  address_line2  VARCHAR(100),
-  postal_code    VARCHAR(10),
-  is_default     BOOLEAN DEFAULT FALSE NOT NULL
-);
-
-CREATE TABLE COMPANIES
-(
-  id   INT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE BRANDS
-(
-  id         INT PRIMARY KEY,
-  company_id INT NOT NULL,
-  name       VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE CATEGORIES
-(
-  id        INT PRIMARY KEY,
-  name      VARCHAR(50) NOT NULL,
-  parent_id INT DEFAULT NULL
-);
-
-CREATE TABLE GOODS
-(
-  id       INT PRIMARY KEY,
-  brand_id INT NOT NULL,
-  name     VARCHAR(50) NOT NULL,
-  price    INT NOT NULL,
-  quantity INT NOT NULL,
-  options  JSON
-);
-
-CREATE TABLE GOODS_CATEGORIES
-(
-  id          INT PRIMARY KEY,
-  goods_id    INT NOT NULL,
-  category_id INT NOT NULL
-);
-
-CREATE TABLE CARTS
-(
-  id       INT PRIMARY KEY,
-  user_id  INT NOT NULL,
-  goods_id INT NOT NULL
-);
-
-CREATE TABLE ORDERS
-(
-  id                  INT PRIMARY KEY,
-  user_id             INT NOT NULL,
-  delivery_address_id INT NOT NULL,
-  total_price         INT NOT NULL,
-  status              VARCHAR(20) NOT NULL COMMENT 'PAYMENT_PENDING, PAYMENT_COMPLETED, ORDER_CANCELLED, PAYMENT_EXPIRED'
-);
-
-CREATE TABLE ORDER_ITEMS
-(
-  id       INT PRIMARY KEY,
-  order_id INT NOT NULL,
-  goods_id INT NOT NULL
-);
-
-CREATE TABLE COUPONS
-(
-  coupon_id      INT PRIMARY KEY,
-  coupon_code    VARCHAR(50) NOT NULL,
-  discount_type  VARCHAR(20) NOT NULL COMMENT 'FIXED, RATE',
-  discount_value INT NOT NULL,
-  start_date     DATETIME NOT NULL,
-  end_date       DATETIME NOT NULL,
-  issued_count   INT NOT NULL,
-  max_issuable   INT NOT NULL
-);
-
-CREATE TABLE COUPON_USAGES
-(
-  id        INT PRIMARY KEY,
-  order_id  INT NOT NULL,
-  coupon_id INT NOT NULL
-);
-
-CREATE TABLE USER_COUPONS
-(
-  id        INT PRIMARY KEY,
-  user_id   INT NOT NULL,
-  coupon_id INT NOT NULL,
-  status    VARCHAR(20) NOT NULL COMMENT 'AVAILABLE, USED, EXPIRED'
-);
-
-CREATE TABLE POINTS
-(
-  id      INT PRIMARY KEY,
-  user_id INT NOT NULL,
-  balance INT NOT NULL
-);
-
-CREATE TABLE POINT_TRANSACTIONS
-(
-  id               INT PRIMARY KEY,
-  user_id          INT NOT NULL,
-  transaction_type VARCHAR(20) NOT NULL COMMENT 'CHARGE, USAGE',
-  amount           INT NOT NULL
-);
-
-CREATE TABLE PAYMENT_METHODS
-(
-  id           INT PRIMARY KEY,
-  payment_type VARCHAR(20) NOT NULL COMMENT 'CREDIT_CARD, MOBILE_PAYMENT, POINT_PAYMENT',
-  name         VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE PAYMENTS
-(
-  id                INT PRIMARY KEY,
-  order_id          INT NOT NULL,
-  payment_method_id INT NOT NULL,
-  price             INT NOT NULL,
-  status            VARCHAR(20) NOT NULL COMMENT 'COMPLETED, CANCELLED, FAILED'
-);
-```
-</details>
-
-> ### 주요 고민 포인트 🧐
- - #### 시즌별 추천, 프로모션, 이벤트 등을 고려해서 한 상품이 다양한 분류에 속할 수 있게 만들자.
-   - 관련 테이블: `GOODS`, `GOODS_CATEGORIES`, `CATEGORIES` 
-
- - #### 포인트 기반의 결제 외 외부 결제 수단이 추가되는 상황을 고려하자.
-   - 결국 유저로 하여금 편하게 결제할 수 있도록 하는 것이 매우 높은 우선순위를 가지고 추가될 기능이라고 판단해서 초반 설계 떄 포인트 결제를 하나의 결제 수단으로 관리할 수 있도록 했습니다. 따라서 신용카드, 모바일 결제 등이 추가되어도 기존 구조를 수정하지 않고 바로 적용할 수 있습니다. 
-   - 관련 테이블: `POINTS`, `POINT_TRANSACTIONS`, `PAYMENT_METHODS`, `PAYMENTS`
-
- - #### 상품의 옵션을 우선 당장은 JSON 타입을 사용하자. 
-   - 과제 진행 후반에 의류 상품의 옵션이 (사이즈, 컬러, 핏, 소재 등) 다양하게 들어올 수 있다는 것이 떠올랐고 이를 정규화된 설계로 시작하기 보단 우선 JSON 타입으로 관리해서 진행해보려고 합니다. 
-   - 기획을 보충하고 나서 이 부분을 수정 하려고 합니다.
-   - 관련 테이블: `GOODS`
-
 ----
 
 ## API Specification via Swagger
 
-애플리케이션 구동 후 아래 주소에서 Swagger UI를 통해 API 명세를 확인할 수 있습니다. 
+#### FYI. 이번 주차에 API 까지 완성이 되지 않아 `Try it`은 동작하지 않습니다! 서버 구동 후 [Link](http://localhost:8080/swagger-ui/index.html) 에서도 확인 가능합니다 :-)  
 
-### 🔗 **Swagger UI Link**
-[👉 http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+<details>
+<summary>Point API</summary>
+
+![](docs/get_point.png)
+
+![](docs/post_charge_point.png)
+
+![](docs/post_deduct_point.png)
+
+</details>
+
+<details>
+<summary>Product API</summary>
+
+![](docs/get_all_products.png)
+
+![](docs/get_top_sailing_products.png)
+
+</details>
+
+
+<details>
+<summary>Coupon API</summary>
+
+![](docs/get_available_coupons.png)
+
+![](docs/post_issue_coupon.png)
+
+</details>
+
+<details>
+<summary>Order API</summary>
+
+![](docs/post_order.png)
+
+</details>
+
+<details>
+<summary>Payment API</summary>
+
+![](docs/post_payment.png)
+
+</details>
