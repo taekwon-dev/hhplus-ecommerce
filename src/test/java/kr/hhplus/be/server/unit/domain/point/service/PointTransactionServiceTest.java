@@ -43,7 +43,7 @@ class PointTransactionServiceTest {
         // then
         assertThat(savedPointTransaction.getUser()).isEqualTo(pointTransaction.getUser());
         assertThat(savedPointTransaction.getAmount()).isEqualTo(pointTransaction.getAmount());
-        assertThat(savedPointTransaction.getType()).isEqualTo(pointTransaction.getType());
+        assertThat(savedPointTransaction.getTransactionType()).isEqualTo(pointTransaction.getTransactionType());
 
         verify(pointTransactionCoreRepository, times(1)).save(pointTransaction);
     }

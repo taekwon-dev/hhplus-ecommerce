@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Table(name = "`order`")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
