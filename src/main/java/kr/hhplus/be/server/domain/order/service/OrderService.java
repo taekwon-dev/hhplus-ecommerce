@@ -36,4 +36,8 @@ public class OrderService {
     public void validateOrderOwnership(User user, Order order) {
         order.validateOwnership(user);
     }
+
+    public void completeOrder(Order order) {
+        order.complete();
+    }
 }

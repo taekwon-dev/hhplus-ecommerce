@@ -131,4 +131,18 @@ class OrderServiceTest {
         assertThatThrownBy(() -> orderService.validateOrderOwnership(user2, order))
                 .isInstanceOf(OrderNotFoundException.class);
     }
+
+    @DisplayName("Order 주문 완료 상태 업데이트 - 성공")
+    @Test
+    void completeOrder() {
+        // given
+        User user = UserFixture.USER(1L);
+        Order order = new Order(user);
+
+        // when
+        orderService.completeOrder(order);
+
+        // then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+    }
 }

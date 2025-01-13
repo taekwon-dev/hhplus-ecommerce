@@ -12,6 +12,7 @@ import kr.hhplus.be.server.domain.user.domain.User;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class OrderFacade {
     private final ProductService productService;
     private final OrderService orderService;
 
+    @Transactional
     public OrderResponse order(long userId, List<OrderRequest> requests) {
         User user = userService.findUserById(userId);
         List<ProductQuantityDto> productQuantityDtos = mapToProductQuantityDtos(requests);

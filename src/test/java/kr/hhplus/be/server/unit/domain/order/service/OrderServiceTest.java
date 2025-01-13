@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.unit.domain.order.service;
 
 import kr.hhplus.be.server.domain.order.domain.Order;
+import kr.hhplus.be.server.domain.order.domain.OrderStatus;
 import kr.hhplus.be.server.domain.order.exception.OrderNotFoundException;
 import kr.hhplus.be.server.domain.order.repository.OrderCoreRepository;
 import kr.hhplus.be.server.domain.order.service.OrderService;
@@ -124,5 +125,19 @@ class OrderServiceTest {
         // when & then
         assertThatThrownBy(() -> orderService.validateOrderOwnership(user2, order))
                 .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @DisplayName("Order 주문 완료 상태 업데이트 - 성공")
+    @Test
+    void completeOrder() {
+        // given
+        User user = UserFixture.USER(1L);
+        Order order = new Order(user);
+
+        // when
+        orderService.completeOrder(order);
+
+        // then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
 }

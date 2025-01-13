@@ -52,8 +52,7 @@ public class PaymentFacade {
             default:
                 throw new UnsupportedPaymentMethodException();
         }
-
-        order.complete();
+        orderService.completeOrder(order);
         Payment payment = paymentService.pay(order, paymentMethod, totalPrice);
         return new PaymentResponse(order.getId(), payment.getId(), payment.getAmount(), payment.getMethod(), payment.getStatus());
     }
