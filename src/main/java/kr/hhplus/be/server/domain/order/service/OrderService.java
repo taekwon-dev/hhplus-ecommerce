@@ -32,4 +32,8 @@ public class OrderService {
     public Order findById(Long id) {
         return orderRepository.findById(id);
     }
+
+    public void validateOrderOwnership(User user, Order order) {
+        order.validateOwnership(user);
+    }
 }

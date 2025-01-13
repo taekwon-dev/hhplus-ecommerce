@@ -37,7 +37,7 @@ public class PaymentFacade {
     public PaymentResponse pay(long userId, PaymentRequest request) {
         User user = userService.findUserById(userId);
         Order order = orderService.findById(request.orderId());
-        paymentService.validateOrderOwnership(user, order);
+        orderService.validateOrderOwnership(user, order);
 
         List<ProductQuantityDto> productQuantityDtos = mapToProductQuantityDtos(request);
         productService.deductStock(productQuantityDtos);

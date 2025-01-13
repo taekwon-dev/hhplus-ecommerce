@@ -86,7 +86,7 @@ class PaymentFacadeTest {
 
         when(userService.findUserById(user.getId())).thenReturn(user);
         when(orderService.findById(order.getId())).thenReturn(order);
-        doNothing().when(paymentService).validateOrderOwnership(user, order);
+        doNothing().when(orderService).validateOrderOwnership(user, order);
         doNothing().when(productService).deductStock(productQuantityDtos);
         when(paymentService.pay(order, PaymentMethod.POINT_PAYMENT, totalPrice)).thenReturn(payment);
         when(pointService.deductPoints(user, totalPrice)).thenReturn(point);
@@ -105,7 +105,7 @@ class PaymentFacadeTest {
 
         verify(userService, times(1)).findUserById(user.getId());
         verify(orderService, times(2)).findById(order.getId());
-        verify(paymentService, times(1)).validateOrderOwnership(user, order);
+        verify(orderService, times(1)).validateOrderOwnership(user, order);
         verify(productService, times(1)).deductStock(productQuantityDtos);
         verify(paymentService, times(1)).pay(order, PaymentMethod.POINT_PAYMENT, totalPrice);
         verify(pointService, times(1)).deductPoints(user, totalPrice);
