@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,12 +46,13 @@ class CouponFacadeTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
         List<Coupon> coupons = List.of(coupon);
+        Pageable pageable = PageRequest.of(0, 10);
 
         when(userService.findUserById(user.getId())).thenReturn(user);
-        when(couponService.findAvailableCoupons(user)).thenReturn(coupons);
+        when(couponService.findAvailableCoupons(user, pageable)).thenReturn(coupons);
 
         // when
-        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId());
+        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId(), pageable);
 
         // then
         assertThat(responses).hasSize(1);
@@ -67,13 +70,13 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
-        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
 
         when(userService.findUserById(user.getId())).thenReturn(user);
         when(couponService.issue(user, coupon.getId())).thenReturn(coupon);
 
         // when
-        CouponResponse response = couponFacade.issue(user.getId(), request);
+        CouponResponse response = couponFacade.issue(request);
 
         // then
         assertThat(response.couponId()).isEqualTo(coupon.getId());

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.unit.domain.coupon.repository;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.domain.user.UserCoupon;
+import kr.hhplus.be.server.domain.coupon.domain.user.UserCouponStatus;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponCoreRepository;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponJpaRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,11 +65,12 @@ class UserCouponCoreRepositoryTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(userCouponJpaRepository.findAvailableCouponsByUser(user)).thenReturn(List.of(coupon));
+        when(userCouponJpaRepository.findAvailableCouponsByUser(user, UserCouponStatus.AVAILABLE, pageable)).thenReturn(List.of(coupon));
 
         // when
-        List<Coupon> coupons = userCouponCoreRepository.findAvailableCouponsByUser(user);
+        List<Coupon> coupons = userCouponCoreRepository.findAvailableCouponsByUser(user, pageable);
 
         // then
         assertThat(coupons.size()).isOne();
@@ -77,7 +81,7 @@ class UserCouponCoreRepositoryTest {
         assertThat(coupons.get(0).getIssuedCount()).isZero();
         assertThat(coupons.get(0).getMaxIssuableCount()).isEqualTo(10);
 
-        verify(userCouponJpaRepository, times(1)).findAvailableCouponsByUser(user);
+        verify(userCouponJpaRepository, times(1)).findAvailableCouponsByUser(user, UserCouponStatus.AVAILABLE, pageable);
     }
 
     @DisplayName("User의 Coupon 발급 여부 조회 - 성공 - 발급 이력 없음")

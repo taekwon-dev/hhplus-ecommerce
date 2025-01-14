@@ -5,6 +5,8 @@ import kr.hhplus.be.server.api.coupon.controller.response.CouponResponse;
 import kr.hhplus.be.server.api.coupon.facade.CouponFacade;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
+import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
+import kr.hhplus.be.server.domain.coupon.exception.MaxIssuableCountExceededException;
 import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -17,12 +19,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -58,9 +63,10 @@ class CouponFacadeTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
         couponService.issue(user, coupon.getId());
+        Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId());
+        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId(), pageable);
 
         // then
         assertThat(responses).hasSize(1);
@@ -75,13 +81,46 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
-        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
 
         // when
-        CouponResponse response = couponFacade.issue(user.getId(), request);
+        CouponResponse response = couponFacade.issue(request);
 
         // then
         assertThat(response.couponId()).isEqualTo(coupon.getId());
         assertThat(response.code()).isEqualTo(coupon.getCode());
+    }
+
+    @DisplayName("Coupon 발급 - 실패 - 최대 쿠폰 발급 수량 초과")
+    @Test
+    void issue_exceededMaxIssuableCount() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 0));
+        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+
+        // when & then
+        assertThatThrownBy(() -> couponFacade.issue(request))
+                .isInstanceOf(MaxIssuableCountExceededException.class);
+    }
+
+    @DisplayName("Coupon 발급 - 실패 - 이미 발급 받은 쿠폰")
+    @Test
+    void issue_alreadyIssuedCoupon() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
+        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        couponFacade.issue(request);
+
+        // when & then
+        assertThatThrownBy(() -> couponFacade.issue(request))
+                .isInstanceOf(AlreadyIssuedCouponException.class);
     }
 }

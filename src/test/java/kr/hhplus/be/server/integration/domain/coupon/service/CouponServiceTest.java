@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.integration.domain.coupon.service;
 
-import kr.hhplus.be.server.api.coupon.facade.CouponFacade;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
@@ -17,6 +16,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -62,9 +63,10 @@ class CouponServiceTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
         couponService.issue(user, coupon.getId());
+        Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        List<Coupon> coupons = couponService.findAvailableCoupons(user);
+        List<Coupon> coupons = couponService.findAvailableCoupons(user, pageable);
 
         // then
         assertThat(coupons).hasSize(1);

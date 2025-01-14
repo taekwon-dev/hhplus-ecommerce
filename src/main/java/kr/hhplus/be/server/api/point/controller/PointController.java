@@ -15,7 +15,7 @@ public class PointController {
     private final PointFacade pointFacade;
 
     @GetMapping
-    public ResponseEntity<PointResponse> getPointBalance(@RequestParam final Long userId) {
+    public ResponseEntity<PointResponse> getPointBalance(@RequestParam Long userId) {
         PointResponse response = pointFacade.getPointBalance(userId);
         return ResponseEntity.ok(response);
     }
