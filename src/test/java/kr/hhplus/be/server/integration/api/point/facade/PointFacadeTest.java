@@ -1,12 +1,12 @@
 package kr.hhplus.be.server.integration.api.point.facade;
 
 import kr.hhplus.be.server.api.point.controller.request.PointAddRequest;
-import kr.hhplus.be.server.api.point.controller.request.PointDeductRequest;
 import kr.hhplus.be.server.api.point.controller.response.PointResponse;
 import kr.hhplus.be.server.api.point.facade.PointFacade;
 import kr.hhplus.be.server.domain.point.domain.Point;
 import kr.hhplus.be.server.domain.point.domain.PointTransaction;
 import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
+import kr.hhplus.be.server.domain.point.exception.InvalidPointAdditionAmountException;
 import kr.hhplus.be.server.domain.point.repository.PointRepository;
 import kr.hhplus.be.server.domain.point.repository.PointTransactionRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -86,25 +87,33 @@ class PointFacadeTest {
         assertThat(response.balance()).isEqualTo(initialBalance + amountToCharge);
     }
 
-    @DisplayName("유저는 포인트를 사용한다 - 성공")
+    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트를 만족하지 않은 경우 예외 발생")
     @Test
-    void deductPoints() {
+    void addPoints_invalidMinimumAmount() {
         // given
         User user = userRepository.save(UserFixture.USER());
         int initialBalance = 1_000;
         pointRepository.save(new Point(user, initialBalance));
-        int amountToDeduct = 1_000;
-        PointDeductRequest request = new PointDeductRequest(user.getId(), amountToDeduct);
+        int amountToCharge = 0;
+        PointAddRequest request = new PointAddRequest(user.getId(), amountToCharge);
 
-        // when
-        PointResponse response = pointFacade.deductPoints(request);
+        // when & then
+        assertThatThrownBy(() -> pointFacade.addPoints(request))
+                .isInstanceOf(InvalidPointAdditionAmountException.class);
+    }
 
-        // then
-        List<PointTransaction> pointTransactions = pointTransactionRepository.findByUser(user);
-        assertThat(pointTransactions.size()).isEqualTo(1);
-        assertThat(pointTransactions.get(0).getTransactionType()).isEqualTo(PointTransactionType.USAGE);
+    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트 단위를 만족하지 않은 경우 예외 발생")
+    @Test
+    void addPoints_invalidAmountUnit() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 1_000;
+        pointRepository.save(new Point(user, initialBalance));
+        int amountToCharge = 1_500;
+        PointAddRequest request = new PointAddRequest(user.getId(), amountToCharge);
 
-        assertThat(response.userId()).isEqualTo(user.getId());
-        assertThat(response.balance()).isZero();
+        // when & then
+        assertThatThrownBy(() -> pointFacade.addPoints(request))
+                .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 }

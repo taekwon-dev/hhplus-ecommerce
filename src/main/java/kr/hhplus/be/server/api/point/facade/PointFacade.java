@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.api.point.facade;
 
 import kr.hhplus.be.server.api.point.controller.request.PointAddRequest;
-import kr.hhplus.be.server.api.point.controller.request.PointDeductRequest;
 import kr.hhplus.be.server.api.point.controller.response.PointResponse;
 import kr.hhplus.be.server.domain.point.domain.Point;
 import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
@@ -25,7 +24,6 @@ public class PointFacade {
     public PointResponse getPointBalance(long userId) {
         User user = userService.findUserById(userId);
         Point point = pointService.findPointByUser(user);
-
         return new PointResponse(user.getId(), point.getBalance());
     }
 
@@ -34,16 +32,6 @@ public class PointFacade {
         User user = userService.findUserById(request.userId());
         Point point = pointService.addPoints(user, request.amount());
         pointTransactionService.recordPointTransaction(user, request.amount(), PointTransactionType.CHARGE);
-
-        return new PointResponse(user.getId(), point.getBalance());
-    }
-
-    @Transactional
-    public PointResponse deductPoints(PointDeductRequest request) {
-        User user = userService.findUserById(request.userId());
-        Point point = pointService.deductPoints(user, request.amount());
-        pointTransactionService.recordPointTransaction(user, request.amount(), PointTransactionType.USAGE);
-
         return new PointResponse(user.getId(), point.getBalance());
     }
 }

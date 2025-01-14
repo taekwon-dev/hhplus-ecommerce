@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.unit.api.point.facade;
 
 import kr.hhplus.be.server.api.point.controller.request.PointAddRequest;
-import kr.hhplus.be.server.api.point.controller.request.PointDeductRequest;
 import kr.hhplus.be.server.api.point.controller.response.PointResponse;
 import kr.hhplus.be.server.api.point.facade.PointFacade;
 import kr.hhplus.be.server.domain.point.domain.Point;
@@ -84,34 +83,6 @@ class PointFacadeTest {
 
         verify(userService, times(1)).findUserById(user.getId());
         verify(pointService, times(1)).addPoints(user, amount);
-        verify(pointTransactionService, times(1)).recordPointTransaction(user, amount, type);
-    }
-
-    @DisplayName("Point 차감 - 성공")
-    @Test
-    void deductPoints() {
-        // given
-        User user = UserFixture.USER(1L);
-        int balance = 1_000;
-        int amount = 1_000;
-        Point expectedPoint = new Point(1L, user, balance - amount);
-        PointDeductRequest request = new PointDeductRequest(user.getId(), amount);
-        PointTransactionType type = PointTransactionType.USAGE;
-        PointTransaction pointTransaction = new PointTransaction(user, amount, type);
-
-        when(userService.findUserById(user.getId())).thenReturn(user);
-        when(pointService.deductPoints(user, amount)).thenReturn(expectedPoint);
-        when(pointTransactionService.recordPointTransaction(user, amount, type)).thenReturn(pointTransaction);
-
-        // when
-        PointResponse response = pointFacade.deductPoints(request);
-
-        // then
-        assertThat(response.userId()).isEqualTo(user.getId());
-        assertThat(response.balance()).isEqualTo(expectedPoint.getBalance());
-
-        verify(userService, times(1)).findUserById(user.getId());
-        verify(pointService, times(1)).deductPoints(user, amount);
         verify(pointTransactionService, times(1)).recordPointTransaction(user, amount, type);
     }
 }
