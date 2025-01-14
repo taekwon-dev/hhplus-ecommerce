@@ -2,6 +2,11 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.4.1"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.asciidoctor.jvm.convert") version "3.3.2"
+}
+
+configurations {
+	create("asciidoctorExt")
 }
 
 fun getGitHash(): String {
@@ -49,9 +54,23 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testImplementation("io.rest-assured:rest-assured:5.3.1")
+
+	// Docs
+	configurations["asciidoctorExt"]("org.springframework.restdocs:spring-restdocs-asciidoctor")
+	testImplementation("org.springframework.restdocs:spring-restdocs-restassured")
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
 	systemProperty("user.timezone", "UTC")
+}
+
+val snippetsDir = file("build/generated-snippets")
+
+tasks.asciidoctor {
+	configurations("asciidoctorExt")
+	baseDirFollowsSourceFile()
+	inputs.dir(snippetsDir)
+	dependsOn(tasks.test)
 }
