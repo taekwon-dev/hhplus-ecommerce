@@ -6,6 +6,8 @@ import kr.hhplus.be.server.domain.payment.domain.Payment;
 import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
 import kr.hhplus.be.server.domain.payment.domain.PaymentStatus;
 import kr.hhplus.be.server.domain.payment.service.PaymentService;
+import kr.hhplus.be.server.domain.point.domain.Point;
+import kr.hhplus.be.server.domain.point.repository.PointRepository;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.repository.CategoryRepository;
@@ -32,6 +34,9 @@ class PaymentServiceTest {
     private UserRepository userRepository;
 
     @Autowired
+    private PointRepository pointRepository;
+
+    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
@@ -56,13 +61,13 @@ class PaymentServiceTest {
     void pay() {
         // given
         User user = userRepository.save(UserFixture.USER());
+        pointRepository.save(new Point(user, 100_000));
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
         Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
 
         Order order = new Order(user);
         order.addOrderProduct(product, 1);
         orderRepository.save(order);
-
         int totalPrice = order.calculateTotalPrice();
 
         // when

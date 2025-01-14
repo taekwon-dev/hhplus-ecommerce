@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.unit.domain.payment.service;
 
 import kr.hhplus.be.server.domain.order.domain.Order;
-import kr.hhplus.be.server.domain.payment.domain.Payment;
-import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
-import kr.hhplus.be.server.domain.payment.domain.PaymentStatus;
+import kr.hhplus.be.server.domain.payment.domain.*;
 import kr.hhplus.be.server.domain.payment.repository.PaymentCoreRepository;
+import kr.hhplus.be.server.domain.payment.repository.PaymentRepository;
 import kr.hhplus.be.server.domain.payment.service.PaymentService;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
@@ -27,6 +26,12 @@ class PaymentServiceTest {
     @Mock
     private PaymentCoreRepository paymentCoreRepository;
 
+    @Mock
+    private PaymentStrategyFactory paymentStrategyFactory;
+
+    @Mock
+    private PointPaymentStrategy pointPaymentStrategy;
+
     @InjectMocks
     private PaymentService paymentService;
 
@@ -48,6 +53,8 @@ class PaymentServiceTest {
         Payment payment = new Payment(order, PaymentMethod.POINT_PAYMENT, totalPrice, PaymentStatus.CONFIRMED);
 
         when(paymentCoreRepository.save(payment)).thenReturn(payment);
+        when(paymentStrategyFactory.getPaymentStrategy(payment.getMethod())).thenReturn(pointPaymentStrategy);
+        doNothing().when(pointPaymentStrategy).pay(user, totalPrice);
 
         // when
         Payment savedPayment = paymentService.pay(order, PaymentMethod.POINT_PAYMENT, totalPrice);
@@ -59,5 +66,7 @@ class PaymentServiceTest {
         assertThat(savedPayment.getStatus()).isEqualTo(payment.getStatus());
 
         verify(paymentCoreRepository, times(1)).save(payment);
+        verify(paymentStrategyFactory, times(1)).getPaymentStrategy(payment.getMethod());
+        verify(pointPaymentStrategy, times(1)).pay(user, totalPrice);
     }
 }

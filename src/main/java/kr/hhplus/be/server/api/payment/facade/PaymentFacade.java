@@ -4,13 +4,11 @@ import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
 import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
+import kr.hhplus.be.server.domain.payment.domain.DataPlatformClient;
 import kr.hhplus.be.server.domain.payment.domain.Payment;
+import kr.hhplus.be.server.domain.payment.domain.PaymentCompletedEvent;
 import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
-import kr.hhplus.be.server.domain.payment.exception.UnsupportedPaymentMethodException;
 import kr.hhplus.be.server.domain.payment.service.PaymentService;
-import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
-import kr.hhplus.be.server.domain.point.service.PointService;
-import kr.hhplus.be.server.domain.point.service.PointTransactionService;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -30,12 +28,11 @@ public class PaymentFacade {
     private final ProductService productService;
     private final OrderService orderService;
     private final PaymentService paymentService;
-    private final PointService pointService;
-    private final PointTransactionService pointTransactionService;
+    private final DataPlatformClient dataPlatformClient;
 
     @Transactional
-    public PaymentResponse pay(long userId, PaymentRequest request) {
-        User user = userService.findUserById(userId);
+    public PaymentResponse pay(PaymentRequest request) {
+        User user = userService.findUserById(request.userId());
         Order order = orderService.findById(request.orderId());
         orderService.validateOrderOwnership(user, order);
 
@@ -44,22 +41,11 @@ public class PaymentFacade {
 
         PaymentMethod paymentMethod = request.paymentMethod();
         int totalPrice = order.calculateTotalPrice();
-
-        switch (paymentMethod) {
-            case POINT_PAYMENT:
-                handlePointPayment(user, totalPrice);
-                break;
-            default:
-                throw new UnsupportedPaymentMethodException();
-        }
-        orderService.completeOrder(order);
         Payment payment = paymentService.pay(order, paymentMethod, totalPrice);
-        return new PaymentResponse(order.getId(), payment.getId(), payment.getAmount(), payment.getMethod(), payment.getStatus());
-    }
 
-    private void handlePointPayment(User user, int amount) {
-        pointService.deductPoints(user, amount);
-        pointTransactionService.recordPointTransaction(user, amount, PointTransactionType.USAGE);
+        orderService.completeOrder(order);
+        dataPlatformClient.send(new PaymentCompletedEvent(user.getId(), order.getId(), totalPrice));
+        return new PaymentResponse(order.getId(), payment.getId(), payment.getAmount(), payment.getMethod(), payment.getStatus());
     }
 
     private List<ProductQuantityDto> mapToProductQuantityDtos(PaymentRequest request) {

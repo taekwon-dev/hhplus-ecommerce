@@ -83,9 +83,8 @@ class ProductFacadeTest {
             Order order = new Order(user);
             order.addOrderProduct(products.get(i - 1), i);
             orderRepository.save(order);
-
-            PaymentRequest paymentRequest = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
-            paymentFacade.pay(user.getId(), paymentRequest);
+            PaymentRequest paymentRequest = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
+            paymentFacade.pay(paymentRequest);
         }
 
         // when

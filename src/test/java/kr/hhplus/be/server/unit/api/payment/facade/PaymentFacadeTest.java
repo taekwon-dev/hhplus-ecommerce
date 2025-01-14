@@ -5,15 +5,8 @@ import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;
 import kr.hhplus.be.server.api.payment.facade.PaymentFacade;
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
-import kr.hhplus.be.server.domain.payment.domain.Payment;
-import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
-import kr.hhplus.be.server.domain.payment.domain.PaymentStatus;
+import kr.hhplus.be.server.domain.payment.domain.*;
 import kr.hhplus.be.server.domain.payment.service.PaymentService;
-import kr.hhplus.be.server.domain.point.domain.Point;
-import kr.hhplus.be.server.domain.point.domain.PointTransaction;
-import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
-import kr.hhplus.be.server.domain.point.service.PointService;
-import kr.hhplus.be.server.domain.point.service.PointTransactionService;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.ProductService;
@@ -51,10 +44,7 @@ class PaymentFacadeTest {
     private PaymentService paymentService;
 
     @Mock
-    private PointService pointService;
-
-    @Mock
-    private PointTransactionService pointTransactionService;
+    private DataPlatformClient dataPlatformClient;
 
     @InjectMocks
     private PaymentFacade paymentFacade;
@@ -75,27 +65,23 @@ class PaymentFacadeTest {
         Order order = new Order(1L, user);
         order.addOrderProduct(product, 1);
         int totalPrice = order.calculateTotalPrice();
-        int balance = 100_000;
-        Point point = new Point(1L, user, balance - totalPrice);
 
         ProductQuantityDto productQuantityDto = new ProductQuantityDto(product.getId(), quantity);
         List<ProductQuantityDto> productQuantityDtos = List.of(productQuantityDto);
 
         Payment payment = new Payment(1L, order, PaymentMethod.POINT_PAYMENT, totalPrice, PaymentStatus.CONFIRMED);
-        PaymentRequest paymentRequest = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest paymentRequest = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
 
         when(userService.findUserById(user.getId())).thenReturn(user);
         when(orderService.findById(order.getId())).thenReturn(order);
         doNothing().when(orderService).validateOrderOwnership(user, order);
         doNothing().when(productService).deductStock(productQuantityDtos);
-        doNothing().when(orderService).completeOrder(order);
         when(paymentService.pay(order, PaymentMethod.POINT_PAYMENT, totalPrice)).thenReturn(payment);
-        when(pointService.deductPoints(user, totalPrice)).thenReturn(point);
-        when(pointTransactionService.recordPointTransaction(user, totalPrice, PointTransactionType.USAGE)).thenReturn(new PointTransaction(user, totalPrice, PointTransactionType.USAGE));
-
+        doNothing().when(orderService).completeOrder(order);
+        doNothing().when(dataPlatformClient).send(new PaymentCompletedEvent(user.getId(), order.getId(), totalPrice));
 
         // when
-        PaymentResponse response = paymentFacade.pay(user.getId(), paymentRequest);
+        PaymentResponse response = paymentFacade.pay(paymentRequest);
 
         // then
         assertThat(response.orderId()).isEqualTo(order.getId());
@@ -110,7 +96,6 @@ class PaymentFacadeTest {
         verify(productService, times(1)).deductStock(productQuantityDtos);
         verify(paymentService, times(1)).pay(order, PaymentMethod.POINT_PAYMENT, totalPrice);
         verify(orderService, times(1)).completeOrder(order);
-        verify(pointService, times(1)).deductPoints(user, totalPrice);
-        verify(pointTransactionService, times(1)).recordPointTransaction(user, totalPrice, PointTransactionType.USAGE);
+        verify(dataPlatformClient, times(1)).send(new PaymentCompletedEvent(user.getId(), order.getId(), totalPrice));
     }
 }
