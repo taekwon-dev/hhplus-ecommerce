@@ -116,8 +116,8 @@ class ProductControllerTest extends ControllerTest {
             List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
             OrderCreateRequest request = new OrderCreateRequest(user.getId(), orderProductDetails);
             long orderId = orderFacade.order(request);
-            PaymentRequest paymentRequest = new PaymentRequest(user.getId(), orderId, PaymentMethod.POINT_PAYMENT);
-            paymentFacade.pay(paymentRequest);
+            PaymentRequest paymentRequest = new PaymentRequest(orderId, PaymentMethod.POINT_PAYMENT);
+            paymentFacade.pay(user, paymentRequest);
         }
 
         // when & then

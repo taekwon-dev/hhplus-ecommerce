@@ -28,7 +28,6 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 class PaymentControllerTest extends ControllerTest {
 
     private static final FieldDescriptor[] PAYMENT_REQUEST_FIELD_DESCRIPTORS = {
-            fieldWithPath("userId").description("결제 요청 사용자 ID"),
             fieldWithPath("orderId").description("결제 대상 주문 ID"),
             fieldWithPath("paymentMethod").description("결제 방식(POINT_PAYMENT, ...)")
     };
@@ -71,11 +70,12 @@ class PaymentControllerTest extends ControllerTest {
         order.addOrderProduct(product, 1);
         orderRepository.save(order);
 
-        PaymentRequest request = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("payment",
                         requestFields(PAYMENT_REQUEST_FIELD_DESCRIPTORS),
@@ -83,6 +83,65 @@ class PaymentControllerTest extends ControllerTest {
                 ))
                 .when().post("/v1/payments")
                 .then().log().all().statusCode(200);
+    }
+
+    @DisplayName("결제 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @Test
+    void createPayment_doesNotExistToken() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        Category category = categoryRepository.save(CategoryFixture.create("상의"));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 50));
+
+        Order order = new Order(user);
+        order.addOrderProduct(product, 1);
+        orderRepository.save(order);
+
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .filter(document("payment",
+                        requestFields(PAYMENT_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/payments")
+                .then().log().all().statusCode(401);
+    }
+
+    @DisplayName("결제 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @Test
+    void createPayment_invalidUserToken() {
+        // given
+        long invalidUserToken = 0L;
+
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        Category category = categoryRepository.save(CategoryFixture.create("상의"));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 50));
+
+        Order order = new Order(user);
+        order.addOrderProduct(product, 1);
+        orderRepository.save(order);
+
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + invalidUserToken)
+                .body(request)
+                .filter(document("payment",
+                        requestFields(PAYMENT_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/payments")
+                .then().log().all().statusCode(401);
     }
 
     @DisplayName("결제 시, 재고가 부족할 경우 400 에러가 발생한다.")
@@ -103,11 +162,12 @@ class PaymentControllerTest extends ControllerTest {
         order.addOrderProduct(product, orderQuantity);
         orderRepository.save(order);
 
-        PaymentRequest request = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("payment",
                         requestFields(PAYMENT_REQUEST_FIELD_DESCRIPTORS)
@@ -134,11 +194,12 @@ class PaymentControllerTest extends ControllerTest {
         order.addOrderProduct(product, orderQuantity);
         orderRepository.save(order);
 
-        PaymentRequest request = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("payment",
                         requestFields(PAYMENT_REQUEST_FIELD_DESCRIPTORS)

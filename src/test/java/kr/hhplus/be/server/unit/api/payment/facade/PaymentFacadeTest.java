@@ -12,7 +12,6 @@ import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
@@ -30,9 +29,6 @@ import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentFacadeTest {
-
-    @Mock
-    private UserService userService;
 
     @Mock
     private ProductService productService;
@@ -70,9 +66,8 @@ class PaymentFacadeTest {
         List<ProductQuantityDto> productQuantityDtos = List.of(productQuantityDto);
 
         Payment payment = new Payment(1L, order, PaymentMethod.POINT_PAYMENT, totalPrice, PaymentStatus.CONFIRMED);
-        PaymentRequest paymentRequest = new PaymentRequest(user.getId(), order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
-        when(userService.findUserById(user.getId())).thenReturn(user);
         when(orderService.findById(order.getId())).thenReturn(order);
         doNothing().when(orderService).validateOrderOwnership(user, order);
         doNothing().when(productService).deductStock(productQuantityDtos);
@@ -81,7 +76,7 @@ class PaymentFacadeTest {
         doNothing().when(dataPlatformClient).send(new PaymentCompletedEvent(user.getId(), order.getId(), totalPrice));
 
         // when
-        PaymentResponse response = paymentFacade.pay(paymentRequest);
+        PaymentResponse response = paymentFacade.pay(user, request);
 
         // then
         assertThat(response.orderId()).isEqualTo(order.getId());
@@ -90,7 +85,6 @@ class PaymentFacadeTest {
         assertThat(response.totalPrice()).isEqualTo(payment.getAmount());
         assertThat(response.paymentStatus()).isEqualTo(payment.getStatus());
 
-        verify(userService, times(1)).findUserById(user.getId());
         verify(orderService, times(2)).findById(order.getId());
         verify(orderService, times(1)).validateOrderOwnership(user, order);
         verify(productService, times(1)).deductStock(productQuantityDtos);

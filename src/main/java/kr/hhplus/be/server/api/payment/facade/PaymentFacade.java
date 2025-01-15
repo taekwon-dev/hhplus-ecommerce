@@ -31,8 +31,7 @@ public class PaymentFacade {
     private final DataPlatformClient dataPlatformClient;
 
     @Transactional
-    public PaymentResponse pay(PaymentRequest request) {
-        User user = userService.findUserById(request.userId());
+    public PaymentResponse pay(User user, PaymentRequest request) {
         Order order = orderService.findById(request.orderId());
         orderService.validateOrderOwnership(user, order);
 
