@@ -12,7 +12,6 @@ import kr.hhplus.be.server.domain.payment.service.PaymentService;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentFacade {
 
-    private final UserService userService;
     private final ProductService productService;
     private final OrderService orderService;
     private final PaymentService paymentService;

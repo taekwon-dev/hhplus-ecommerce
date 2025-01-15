@@ -196,8 +196,8 @@ class ProductServiceTest {
         for (int i = 1; i <= products.size(); i++) {
             OrderProductDetail orderProductDetail = new OrderProductDetail(products.get(i - 1).getId(), i);
             List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
-            OrderCreateRequest request = new OrderCreateRequest(user.getId(), orderProductDetails);
-            long orderId = orderFacade.order(request);
+            OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
+            long orderId = orderFacade.order(user, request);
             PaymentRequest paymentRequest = new PaymentRequest(orderId, PaymentMethod.POINT_PAYMENT);
             paymentFacade.pay(user, paymentRequest);
         }

@@ -11,7 +11,6 @@ import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
@@ -28,9 +27,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderFacadeTest {
-
-    @Mock
-    private UserService userService;
 
     @Mock
     private ProductService productService;
@@ -66,20 +62,18 @@ class OrderFacadeTest {
 
         OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), quantity);
         List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
-        OrderCreateRequest request = new OrderCreateRequest(user.getId(), orderProductDetails);
-
-        when(userService.findUserById(user.getId())).thenReturn(user);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
+        
         doNothing().when(productService).validateStock(productQuantityDtos);
         when(productService.findById(productId)).thenReturn(product);
         when(orderService.order(user, orderDetailDtos)).thenReturn(expectedOrder);
 
         // when
-        long savedOrderId = orderFacade.order(request);
+        long savedOrderId = orderFacade.order(user, request);
 
         // then
         assertThat(savedOrderId).isEqualTo(expectedOrder.getId());
-
-        verify(userService, times(1)).findUserById(user.getId());
+        
         verify(productService, times(1)).validateStock(productQuantityDtos);
         verify(productService, times(1)).findById(productId);
         verify(orderService, times(1)).order(user, orderDetailDtos);

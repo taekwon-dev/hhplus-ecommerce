@@ -8,7 +8,6 @@ import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +19,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderFacade {
 
-    private final UserService userService;
     private final ProductService productService;
     private final OrderService orderService;
 
     @Transactional
-    public Long order(OrderCreateRequest request) {
-        User user = userService.findUserById(request.userId());
+    public Long order(User user, OrderCreateRequest request) {
         List<ProductQuantityDto> productQuantityDtos = mapToProductQuantityDtos(request);
         productService.validateStock(productQuantityDtos);
         List<OrderDetailDto> orderDetailDtos = mapToOrderDetailDtos(request);

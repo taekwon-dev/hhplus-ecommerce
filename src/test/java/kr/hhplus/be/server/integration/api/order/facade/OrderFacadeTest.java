@@ -65,10 +65,10 @@ class OrderFacadeTest {
 
         OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), 1);
         List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
-        OrderCreateRequest request = new OrderCreateRequest(user.getId(), orderProductDetails);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
 
         // when
-        long savedOrderId = orderFacade.order(request);
+        long savedOrderId = orderFacade.order(user, request);
 
         // then
         Order foundOrder = entityManager.createQuery(
@@ -91,10 +91,10 @@ class OrderFacadeTest {
 
         OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), 2);
         List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
-        OrderCreateRequest request = new OrderCreateRequest(user.getId(), orderProductDetails);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(request))
+        assertThatThrownBy(() -> orderFacade.order(user, request))
                 .isInstanceOf(InsufficientStockException.class);
     }
 }
