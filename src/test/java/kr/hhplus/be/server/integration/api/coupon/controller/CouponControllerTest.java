@@ -26,7 +26,6 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 class CouponControllerTest extends ControllerTest {
 
     private static final FieldDescriptor[] COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS = {
-            fieldWithPath("userId").description("쿠폰 발급 요청하는 사용자 ID"),
             fieldWithPath("couponId").description("유저에게 발급할 쿠폰 ID")
     };
 
@@ -67,11 +66,55 @@ class CouponControllerTest extends ControllerTest {
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .filter(document("coupon/getAvailableCoupons",
                         responseFields(AVAILABLE_COUPONS_RESPONSE_FIELD_DESCRIPTORS)
                 ))
-                .when().get("/v1/coupons?userId={userId}", user.getId())
+                .when().get("/v1/coupons")
                 .then().log().all().statusCode(200);
+    }
+
+    @DisplayName("사용 가능한 쿠폰 목록 조회 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @Test
+    void findAvailableCoupons_invalidUserToken() {
+        // given
+        long invalidUserToken = 0L;
+
+        User user = userRepository.save(UserFixture.USER());
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
+        UserCoupon userCoupon = new UserCoupon(user, coupon);
+        userCouponRepository.save(userCoupon);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + invalidUserToken)
+                .filter(document("coupon/getAvailableCoupons"
+                ))
+                .when().get("/v1/coupons")
+                .then().log().all().statusCode(401);
+    }
+
+    @DisplayName("사용 가능한 쿠폰 목록 조회 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @Test
+    void findAvailableCoupons_doesNotExistToken() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
+        UserCoupon userCoupon = new UserCoupon(user, coupon);
+        userCouponRepository.save(userCoupon);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .filter(document("coupon/getAvailableCoupons"
+                ))
+                .when().get("/v1/coupons")
+                .then().log().all().statusCode(401);
     }
 
     @DisplayName("쿠폰 발급 성공 시, 200을 응답한다.")
@@ -82,11 +125,12 @@ class CouponControllerTest extends ControllerTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("coupon/issue",
                         requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS),
@@ -94,6 +138,50 @@ class CouponControllerTest extends ControllerTest {
                 ))
                 .when().post("/v1/coupons")
                 .then().log().all().statusCode(200);
+    }
+
+    @DisplayName("쿠폰 발급 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @Test
+    void issue_invalidUserToken() {
+        // given
+        long invalidUserToken = 0L;
+
+        User user = userRepository.save(UserFixture.USER());
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + invalidUserToken)
+                .body(request)
+                .filter(document("coupon/issue",
+                        requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/coupons")
+                .then().log().all().statusCode(401);
+    }
+
+    @DisplayName("쿠폰 발급 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @Test
+    void issue_doesNotExistToken() {
+        // given
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime endDate = startDate.plusWeeks(1);
+        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .filter(document("coupon/issue",
+                        requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/coupons")
+                .then().log().all().statusCode(401);
     }
 
     @DisplayName("쿠폰 발급 시, 해당 쿠폰이 모두 소진된 경우 400 에러가 발생한다.")
@@ -104,11 +192,12 @@ class CouponControllerTest extends ControllerTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 0));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("coupon/issue",
                         requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS)
@@ -125,10 +214,11 @@ class CouponControllerTest extends ControllerTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 1));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("coupon/issue",
                         requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS),
@@ -140,6 +230,7 @@ class CouponControllerTest extends ControllerTest {
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("coupon/issue",
                         requestFields(COUPON_ISSUE_REQUEST_FIELD_DESCRIPTORS)

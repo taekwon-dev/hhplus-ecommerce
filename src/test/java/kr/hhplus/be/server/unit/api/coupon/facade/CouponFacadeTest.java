@@ -7,7 +7,6 @@ import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.CouponFixture;
 import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
@@ -29,9 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CouponFacadeTest {
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private CouponService couponService;
 
     @InjectMocks
@@ -48,11 +44,10 @@ class CouponFacadeTest {
         List<Coupon> coupons = List.of(coupon);
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(userService.findUserById(user.getId())).thenReturn(user);
         when(couponService.findAvailableCoupons(user, pageable)).thenReturn(coupons);
 
         // when
-        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId(), pageable);
+        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user, pageable);
 
         // then
         assertThat(responses).hasSize(1);
@@ -70,13 +65,12 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
-        when(userService.findUserById(user.getId())).thenReturn(user);
         when(couponService.issue(user, coupon.getId())).thenReturn(coupon);
 
         // when
-        CouponResponse response = couponFacade.issue(request);
+        CouponResponse response = couponFacade.issue(user, request);
 
         // then
         assertThat(response.couponId()).isEqualTo(coupon.getId());

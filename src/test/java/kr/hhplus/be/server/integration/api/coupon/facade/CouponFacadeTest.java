@@ -66,7 +66,7 @@ class CouponFacadeTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user.getId(), pageable);
+        List<CouponResponse> responses = couponFacade.findAvailableCoupons(user, pageable);
 
         // then
         assertThat(responses).hasSize(1);
@@ -81,10 +81,10 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
         // when
-        CouponResponse response = couponFacade.issue(request);
+        CouponResponse response = couponFacade.issue(user, request);
 
         // then
         assertThat(response.couponId()).isEqualTo(coupon.getId());
@@ -100,10 +100,10 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 0));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
 
         // when & then
-        assertThatThrownBy(() -> couponFacade.issue(request))
+        assertThatThrownBy(() -> couponFacade.issue(user, request))
                 .isInstanceOf(MaxIssuableCountExceededException.class);
     }
 
@@ -116,11 +116,11 @@ class CouponFacadeTest {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
-        CouponIssueRequest request = new CouponIssueRequest(user.getId(), coupon.getId());
-        couponFacade.issue(request);
+        CouponIssueRequest request = new CouponIssueRequest(coupon.getId());
+        couponFacade.issue(user, request);
 
         // when & then
-        assertThatThrownBy(() -> couponFacade.issue(request))
+        assertThatThrownBy(() -> couponFacade.issue(user, request))
                 .isInstanceOf(AlreadyIssuedCouponException.class);
     }
 }

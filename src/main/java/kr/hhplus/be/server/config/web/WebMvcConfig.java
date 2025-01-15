@@ -28,7 +28,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/v1/products/**",
-                        "/v1/coupons/**",
                         "/v1/points/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
