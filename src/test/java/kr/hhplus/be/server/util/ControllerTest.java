@@ -5,6 +5,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -25,6 +26,9 @@ public class ControllerTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private DatabaseCleaner databaseCleaner;
+
     @BeforeEach
     void setUp(RestDocumentationContextProvider restDocumentation) {
         RestAssured.port = port;
@@ -35,5 +39,7 @@ public class ControllerTest {
                                 .withRequestDefaults(prettyPrint())
                                 .withResponseDefaults(prettyPrint())
                 ).build();
+
+        databaseCleaner.execute();
     }
 }

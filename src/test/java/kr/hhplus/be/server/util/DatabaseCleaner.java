@@ -18,8 +18,8 @@ import java.util.Set;
 @ActiveProfiles("test")
 public class DatabaseCleaner {
 
-    private static final String TRUNCATE_FORMAT = "TRUNCATE TABLE %s";
-    private static final String ALTER_FORMAT = "ALTER TABLE %s ALTER COLUMN ID RESTART WITH 1";
+    private static final String CAMEL_CASE = "([a-z])([A-Z])";
+    private static final String SNAKE_CASE = "$1_$2";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -30,14 +30,20 @@ public class DatabaseCleaner {
     public void afterPropertiesSet() {
         Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
         tableNames = new ArrayList<>(entities.stream()
-                .filter(entity -> entity.getJavaType().isAnnotationPresent(Table.class))
-                .map(entity -> entity.getJavaType().getAnnotation(Table.class).name())
+                .filter(entity -> entity.getJavaType().isAnnotationPresent(Entity.class))
+                .map(entity -> {
+                    if (entity.getJavaType().isAnnotationPresent(Table.class)) {
+                        return entity.getJavaType().getAnnotation(Table.class).name();
+                    } else {
+                        return convertCamelToSnake(entity);
+                    }
+                })
                 .toList());
     }
 
     @Transactional
     public void execute() {
-        entityManager.flush();
+        entityManager.clear();
         entityManager.createNativeQuery("SET foreign_key_checks = 0;").executeUpdate();
         tableNames.forEach(tableName -> executeQueryWithTable(tableName));
         entityManager.createNativeQuery("SET foreign_key_checks = 1;").executeUpdate();
@@ -50,4 +56,9 @@ public class DatabaseCleaner {
                 .executeUpdate();
     }
 
+    private String convertCamelToSnake(final EntityType<?> e) {
+        return e.getName()
+                .replaceAll(CAMEL_CASE, SNAKE_CASE)
+                .toLowerCase();
+    }
 }

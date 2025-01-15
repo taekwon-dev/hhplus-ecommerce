@@ -1,10 +1,14 @@
 package kr.hhplus.be.server.domain.product.repository;
 
+import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static kr.hhplus.be.server.domain.order.domain.OrderStatus.*;
@@ -31,12 +35,17 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return jpaRepository.findAll();
+    public Page<Product> findAllProducts(Pageable pageable) {
+        return jpaRepository.findAll(pageable);
     }
 
     @Override
-    public List<Product> findTopSellingProducts() {
-        return jpaRepository.findTopSellingProducts(List.of(PAYMENT_COMPLETED, DELIVERED));
+    public List<BestSellingProduct> findBestSellingProducts(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable) {
+        return jpaRepository.findBestSellingProducts(
+                startDateTime,
+                endDateTime,
+                pageable,
+                List.of(PAYMENT_COMPLETED, DELIVERED)
+        );
     }
 }

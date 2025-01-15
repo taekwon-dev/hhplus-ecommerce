@@ -1,13 +1,17 @@
 package kr.hhplus.be.server.domain.product.service;
 
+import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -43,12 +47,14 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findAllProducts() {
-        return productRepository.findAllProducts();
+    public Page<Product> findAllProducts(Pageable pageable) {
+        return productRepository.findAllProducts(pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findTopSellingProducts() {
-        return productRepository.findTopSellingProducts();
+    public List<BestSellingProduct> findBestSellingProducts(Pageable pageable) {
+        LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
+        LocalDateTime startDateTime = endDateTime.minusDays(3);
+        return productRepository.findBestSellingProducts(startDateTime, endDateTime, pageable);
     }
 }

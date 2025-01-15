@@ -1,23 +1,26 @@
 package kr.hhplus.be.server.unit.domain.product.service;
 
-import kr.hhplus.be.server.domain.order.domain.Order;
+import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.repository.ProductCoreRepository;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
-import kr.hhplus.be.server.domain.user.domain.User;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import kr.hhplus.be.server.util.fixture.ProductFixture;
-import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +36,6 @@ class ProductServiceTest {
 
     @InjectMocks
     private ProductService productService;
-
 
     @DisplayName("Product ID 기반 조회 - 성공")
     @Test
@@ -146,38 +148,41 @@ class ProductServiceTest {
         Product product1 = ProductFixture.create(1L, 1_000, 10);
         Product product2 = ProductFixture.create(2L, 1_000, 10);
         Product product3 = ProductFixture.create(3L, 1_000, 10);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(productCoreRepository.findAllProducts()).thenReturn(List.of(product1, product2, product3));
+        when(productCoreRepository.findAllProducts(pageable)).thenReturn(new PageImpl<>(List.of(product1, product2, product3)));
 
         // when
-        List<Product> products = productService.findAllProducts();
+        Page<Product> products = productService.findAllProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
         assertThat(products).contains(product1, product2, product3);
 
-        verify(productCoreRepository, times(1)).findAllProducts();
+        verify(productCoreRepository, times(1)).findAllProducts(pageable);
     }
 
     @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
     @Test
-    void findTopSellingProducts() {
+    void findBestSellingProducts() {
         // given
-        Product product = ProductFixture.create(1L, 1_000, 10);
+        List<BestSellingProduct> bestSellingProducts = List.of(
+                new BestSellingProduct(1L, "라넌큘러스 오버핏 맨투맨1", 10_000, 100, 50),
+                new BestSellingProduct(1L, "라넌큘러스 오버핏 맨투맨2", 10_000, 100, 60),
+                new BestSellingProduct(1L, "라넌큘러스 오버핏 맨투맨3", 10_000, 100, 70),
+                new BestSellingProduct(1L, "라넌큘러스 오버핏 맨투맨4", 10_000, 100, 80),
+                new BestSellingProduct(1L, "라넌큘러스 오버핏 맨투맨5", 10_000, 100, 90)
+        );
+        Pageable pageable = PageRequest.ofSize(5);
 
-        User user = UserFixture.USER(1L);
-        Order order = new Order(user);
-        order.addOrderProduct(product, 1);
-
-        when(productCoreRepository.findTopSellingProducts()).thenReturn(List.of(product));
+        when(productCoreRepository.findBestSellingProducts(any(LocalDateTime.class), any(LocalDateTime.class), eq(pageable))).thenReturn(bestSellingProducts);
 
         // when
-        List<Product> products = productService.findTopSellingProducts();
+        List<BestSellingProduct> result = productService.findBestSellingProducts(pageable);
 
         // then
-        assertThat(products).hasSize(1);
-        assertThat(products).contains(product);
+        assertThat(result).hasSize(5);
 
-        verify(productCoreRepository, times(1)).findTopSellingProducts();
+        verify(productCoreRepository, times(1)).findBestSellingProducts(any(LocalDateTime.class), any(LocalDateTime.class), eq(pageable));
     }
 }
