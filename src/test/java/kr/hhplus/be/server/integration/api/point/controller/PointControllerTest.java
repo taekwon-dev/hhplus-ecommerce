@@ -20,7 +20,6 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 class PointControllerTest extends ControllerTest {
 
     private static final FieldDescriptor[] POINT_ADD_REQUEST_FIELD_DESCRIPTORS = {
-            fieldWithPath("userId").description("포인트 추가 요청 사용자 ID"),
             fieldWithPath("amount").description("추가할 포인트 금액")
     };
 
@@ -46,11 +45,49 @@ class PointControllerTest extends ControllerTest {
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .filter(document("point/get",
                         responseFields(POINT_RESPONSE_FIELD_DESCRIPTORS)
                 ))
-                .when().get("/v1/points?userId={userId}", user.getId())
+                .when().get("/v1/points")
                 .then().log().all().statusCode(200);
+    }
+
+    @DisplayName("현재 포인트 잔액 조회 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @Test
+    void getPointBalance_invalidUserToken() {
+        // given
+        long invalidUserToken = 0L;
+
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + invalidUserToken)
+                .filter(document("point/get"
+                ))
+                .when().get("/v1/points")
+                .then().log().all().statusCode(401);
+    }
+
+    @DisplayName("현재 포인트 잔액 조회 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @Test
+    void getPointBalance_doesNotExistToken() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .filter(document("point/get"
+                ))
+                .when().get("/v1/points")
+                .then().log().all().statusCode(401);
     }
 
     @DisplayName("포인트 충전 성공 시, 200을 응답한다.")
@@ -61,11 +98,12 @@ class PointControllerTest extends ControllerTest {
         int initialBalance = 100_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PointAddRequest request = new PointAddRequest(user.getId(), 100_000);
+        PointAddRequest request = new PointAddRequest(100_000);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("point/add",
                         requestFields(POINT_ADD_REQUEST_FIELD_DESCRIPTORS),
@@ -73,6 +111,51 @@ class PointControllerTest extends ControllerTest {
                 ))
                 .when().post("/v1/points")
                 .then().log().all().statusCode(200);
+    }
+
+    @DisplayName("포인트 충전 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @Test
+    void addPoints_invalidUserToken() {
+        // given
+        long invalidUserToken = 0L;
+
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        PointAddRequest request = new PointAddRequest(100_000);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + invalidUserToken)
+                .body(request)
+                .filter(document("point/add",
+                        requestFields(POINT_ADD_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/points")
+                .then().log().all().statusCode(401);
+    }
+
+    @DisplayName("포인트 충전 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @Test
+    void addPoints_doesNotExistToken() {
+        // given
+        User user = userRepository.save(UserFixture.USER());
+        int initialBalance = 100_000;
+        pointRepository.save(new Point(user, initialBalance));
+
+        PointAddRequest request = new PointAddRequest(100_000);
+
+        // when & then
+        RestAssured.given(spec).log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .filter(document("point/add",
+                        requestFields(POINT_ADD_REQUEST_FIELD_DESCRIPTORS)
+                ))
+                .when().post("/v1/points")
+                .then().log().all().statusCode(401);
     }
 
     @DisplayName("포인트 충전 시, 최소 충전 포인트를 만족하지 않은 경우 400 에러가 발생한다.")
@@ -83,11 +166,12 @@ class PointControllerTest extends ControllerTest {
         int initialBalance = 100_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PointAddRequest request = new PointAddRequest(user.getId(), 0);
+        PointAddRequest request = new PointAddRequest(0);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("point/add",
                         requestFields(POINT_ADD_REQUEST_FIELD_DESCRIPTORS)
@@ -104,11 +188,12 @@ class PointControllerTest extends ControllerTest {
         int initialBalance = 100_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PointAddRequest request = new PointAddRequest(user.getId(), 1_500);
+        PointAddRequest request = new PointAddRequest(1_500);
 
         // when & then
         RestAssured.given(spec).log().all()
                 .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("point/add",
                         requestFields(POINT_ADD_REQUEST_FIELD_DESCRIPTORS)

@@ -58,7 +58,7 @@ class PointFacadeTest {
         pointRepository.save(new Point(user, initialBalance));
 
         // when
-        PointResponse response = pointFacade.getPointBalance(user.getId());
+        PointResponse response = pointFacade.getPointBalance(user);
 
         // then
         assertThat(response.userId()).isEqualTo(user.getId());
@@ -73,10 +73,10 @@ class PointFacadeTest {
         int initialBalance = 1_000;
         pointRepository.save(new Point(user, initialBalance));
         int amountToCharge = 1_000;
-        PointAddRequest request = new PointAddRequest(user.getId(), amountToCharge);
+        PointAddRequest request = new PointAddRequest(amountToCharge);
 
         // when
-        PointResponse response = pointFacade.addPoints(request);
+        PointResponse response = pointFacade.addPoints(user, request);
 
         // then
         List<PointTransaction> pointTransactions = pointTransactionRepository.findByUser(user);
@@ -95,10 +95,10 @@ class PointFacadeTest {
         int initialBalance = 1_000;
         pointRepository.save(new Point(user, initialBalance));
         int amountToCharge = 0;
-        PointAddRequest request = new PointAddRequest(user.getId(), amountToCharge);
+        PointAddRequest request = new PointAddRequest(amountToCharge);
 
         // when & then
-        assertThatThrownBy(() -> pointFacade.addPoints(request))
+        assertThatThrownBy(() -> pointFacade.addPoints(user, request))
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
@@ -110,10 +110,10 @@ class PointFacadeTest {
         int initialBalance = 1_000;
         pointRepository.save(new Point(user, initialBalance));
         int amountToCharge = 1_500;
-        PointAddRequest request = new PointAddRequest(user.getId(), amountToCharge);
+        PointAddRequest request = new PointAddRequest(amountToCharge);
 
         // when & then
-        assertThatThrownBy(() -> pointFacade.addPoints(request))
+        assertThatThrownBy(() -> pointFacade.addPoints(user, request))
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 }
