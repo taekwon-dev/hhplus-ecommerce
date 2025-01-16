@@ -20,7 +20,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +36,9 @@ class ProductServiceTest {
 
     @Mock
     private ProductCoreRepository productCoreRepository;
+
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private ProductService productService;
@@ -175,6 +181,8 @@ class ProductServiceTest {
         );
         Pageable pageable = PageRequest.ofSize(5);
 
+        when(clock.instant()).thenReturn(Instant.parse("2025-01-15T12:00:00Z"));
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(productCoreRepository.findBestSellingProducts(any(LocalDateTime.class), any(LocalDateTime.class), eq(pageable))).thenReturn(bestSellingProducts);
 
         // when

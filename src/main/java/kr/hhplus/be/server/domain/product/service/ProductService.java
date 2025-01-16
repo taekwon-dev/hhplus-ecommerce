@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final Clock clock;
 
     @Transactional(readOnly = true)
     public Product findById(Long id) {
@@ -53,7 +55,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<BestSellingProduct> findBestSellingProducts(Pageable pageable) {
-        LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
+        LocalDateTime endDateTime = LocalDateTime.now(clock);
         LocalDateTime startDateTime = endDateTime.minusDays(3);
         return productRepository.findBestSellingProducts(startDateTime, endDateTime, pageable);
     }

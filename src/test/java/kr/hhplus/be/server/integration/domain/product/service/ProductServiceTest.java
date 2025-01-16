@@ -31,12 +31,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -65,6 +71,9 @@ class ProductServiceTest {
 
     @Autowired
     private OrderFacade orderFacade;
+
+    @MockitoBean
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
@@ -201,6 +210,11 @@ class ProductServiceTest {
             PaymentRequest paymentRequest = new PaymentRequest(orderId, PaymentMethod.POINT_PAYMENT);
             paymentFacade.pay(user, paymentRequest);
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        Instant instant = now.plusDays(1).atZone(ZoneId.systemDefault()).toInstant();
+        when(clock.instant()).thenReturn(instant);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         // when
         List<BestSellingProduct> bestSellingProducts = productService.findBestSellingProducts(pageable);

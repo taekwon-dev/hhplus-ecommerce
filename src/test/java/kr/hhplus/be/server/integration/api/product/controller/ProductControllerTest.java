@@ -23,12 +23,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.restassured.RestAssuredRestDocumentation.document;
-
 
 class ProductControllerTest extends ControllerTest {
 
@@ -71,6 +76,9 @@ class ProductControllerTest extends ControllerTest {
 
     @Autowired
     private PaymentFacade paymentFacade;
+
+    @MockitoBean
+    private Clock clock;
 
     @DisplayName("Product 모든 목록 조회 성공 시, 200을 응답한다.")
     @Test
@@ -119,6 +127,11 @@ class ProductControllerTest extends ControllerTest {
             PaymentRequest paymentRequest = new PaymentRequest(orderId, PaymentMethod.POINT_PAYMENT);
             paymentFacade.pay(user, paymentRequest);
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        Instant instant = now.plusDays(1).atZone(ZoneId.systemDefault()).toInstant();
+        when(clock.instant()).thenReturn(instant);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         // when & then
         RestAssured.given(spec).log().all()
