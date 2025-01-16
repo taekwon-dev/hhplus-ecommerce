@@ -5,7 +5,6 @@ spring:
 logging:
   config: classpath:logback-spring.xml
   file:
-    path: logs
     name: e-commerce.log
   level:
     springframework: DEBUG
