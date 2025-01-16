@@ -41,9 +41,6 @@ public class ProductService {
     public void deductStock(List<ProductQuantityDto> productQuantityDtos) {
         for (ProductQuantityDto productQuantityDto : productQuantityDtos) {
             Product product = productRepository.findByIdWithLock(productQuantityDto.productId());
-            if (product.getStockQuantity() < productQuantityDto.quantity()) {
-                throw new InsufficientStockException();
-            }
             product.deductStockQuantity(productQuantityDto.quantity());
         }
     }
