@@ -3,7 +3,7 @@ package kr.hhplus.be.server.config.web;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.global.auth.AuthInterceptor;
 import kr.hhplus.be.server.global.auth.UserArgumentResolver;
-import kr.hhplus.be.server.global.filter.HttpLoggingFilter;
+import kr.hhplus.be.server.config.web.filter.HttpLoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
