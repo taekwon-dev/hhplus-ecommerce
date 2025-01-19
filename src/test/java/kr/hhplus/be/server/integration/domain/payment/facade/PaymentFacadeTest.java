@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.integration.api.payment.facade;
+package kr.hhplus.be.server.integration.domain.payment.facade;
 
 import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
 import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;

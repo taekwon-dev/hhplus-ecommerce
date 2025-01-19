@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.integration.api.product.facade;
+package kr.hhplus.be.server.integration.domain.product.facade;
 
 import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
 import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;

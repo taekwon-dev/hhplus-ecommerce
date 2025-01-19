@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.integration.api.point.facade;
+package kr.hhplus.be.server.integration.domain.point.facade;
 
 import kr.hhplus.be.server.api.point.controller.request.PointAddRequest;
 import kr.hhplus.be.server.api.point.controller.response.PointResponse;
