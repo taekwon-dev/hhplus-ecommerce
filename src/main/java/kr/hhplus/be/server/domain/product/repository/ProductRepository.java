@@ -1,7 +1,11 @@
 package kr.hhplus.be.server.domain.product.repository;
 
+import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.domain.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductRepository {
@@ -12,7 +16,7 @@ public interface ProductRepository {
 
     Product findByIdWithLock(Long id);
 
-    List<Product> findAllProducts();
+    Page<Product> findAllProducts(Pageable pageable);
 
-    List<Product> findTopSellingProducts();
+    List<BestSellingProduct> findBestSellingProducts(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 }

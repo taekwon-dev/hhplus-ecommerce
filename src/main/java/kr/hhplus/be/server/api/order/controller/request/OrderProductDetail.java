@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.api.order.controller.request;
 
-public record OrderRequest(
+public record OrderProductDetail(
         Long productId,
-        Integer quantity
+        int quantity
 ) {
 }

@@ -2,6 +2,7 @@ package kr.hhplus.be.server.unit.domain.order.domain;
 
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.domain.OrderStatus;
+import kr.hhplus.be.server.domain.order.exception.OrderNotFoundException;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.user.domain.User;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 
 class OrderTest {
 
@@ -68,8 +71,6 @@ class OrderTest {
         assertThat(totalPrice).isEqualTo(price);
     }
 
-
-
     @DisplayName("Order 결제 완료 상태 변경 - 성공")
     @Test
     void complete() {
@@ -82,5 +83,31 @@ class OrderTest {
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
+    }
+
+    @DisplayName("Order 소유자 검증 - 성공")
+    @Test
+    void validateOwnership() {
+        // given
+        User user = UserFixture.USER();
+        Order order = new Order(user);
+
+        // when & then
+        assertThatCode(() -> order.validateOwnership(user))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("Order 소유자 검증 - 실패 - 유저가 생성한 주문이 아닌 경우 예외 발생")
+    @Test
+    void validateOrderOwnership_Fail_NotMine() {
+        // given
+        User user1 = UserFixture.USER(1L);
+        User user2 = UserFixture.USER(2L);
+
+        Order order = new Order(user1);
+
+        // when & then
+        assertThatThrownBy(() -> order.validateOwnership(user2))
+                .isInstanceOf(OrderNotFoundException.class);
     }
 }

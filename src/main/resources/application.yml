@@ -3,6 +3,9 @@ spring:
     name: hhplus
   profiles:
     active: local
+  config:
+    import:
+      - classpath:logback.yml
   datasource:
     name: HangHaePlusDataSource
     type: com.zaxxer.hikari.HikariDataSource
@@ -11,6 +14,9 @@ spring:
       connection-timeout: 10000
       max-lifetime: 60000
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
+    username: application
+    password: application
   jpa:
     open-in-view: false
     generate-ddl: false
@@ -23,15 +29,6 @@ spring:
   web:
     resources:
       static-locations: classpath:/
-
----
-spring.config.activate.on-profile: local, test
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
-    username: application
-    password: application
 
 springdoc:
   swagger-ui:

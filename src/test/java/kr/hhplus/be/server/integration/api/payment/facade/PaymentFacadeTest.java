@@ -85,10 +85,10 @@ class PaymentFacadeTest {
         int initialBalance = 50_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PaymentRequest paymentRequest = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when
-        PaymentResponse response = paymentFacade.pay(user.getId(), paymentRequest);
+        PaymentResponse response = paymentFacade.pay(user, request);
 
         // then
         assertThat(response.orderId()).isEqualTo(order.getId());
@@ -119,10 +119,10 @@ class PaymentFacadeTest {
         int initialBalance = 50_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PaymentRequest paymentRequest = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when & then
-        assertThatThrownBy(() -> paymentFacade.pay(user.getId(), paymentRequest))
+        assertThatThrownBy(() -> paymentFacade.pay(user, request))
                 .isInstanceOf(InsufficientStockException.class);
     }
 
@@ -142,10 +142,10 @@ class PaymentFacadeTest {
         int initialBalance = 10_000;
         pointRepository.save(new Point(user, initialBalance));
 
-        PaymentRequest paymentRequest = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
+        PaymentRequest request = new PaymentRequest(order.getId(), PaymentMethod.POINT_PAYMENT);
 
         // when & then
-        assertThatThrownBy(() -> paymentFacade.pay(user.getId(), paymentRequest))
+        assertThatThrownBy(() -> paymentFacade.pay(user, request))
                 .isInstanceOf(InsufficientPointBalanceException.class);
     }
 
@@ -181,7 +181,7 @@ class PaymentFacadeTest {
         // when
         executeConcurrency(threads, idx -> {
             try {
-                paymentFacade.pay(users.get(idx).getId(), requests.get(idx));
+                paymentFacade.pay(users.get(idx), requests.get(idx));
                 successCount.incrementAndGet();
             } catch (InsufficientStockException e) {
                 failCount.incrementAndGet();

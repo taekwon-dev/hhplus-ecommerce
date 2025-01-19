@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.integration.api.order.facade;
 
-import kr.hhplus.be.server.api.order.controller.request.OrderRequest;
-import kr.hhplus.be.server.api.order.controller.response.OrderResponse;
+import jakarta.persistence.EntityManager;
+import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
+import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;
 import kr.hhplus.be.server.api.order.facade.OrderFacade;
+import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.domain.OrderStatus;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
@@ -43,6 +45,9 @@ class OrderFacadeTest {
     private OrderFacade orderFacade;
 
     @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
     private DatabaseCleaner databaseCleaner;
 
     @BeforeEach
@@ -58,14 +63,22 @@ class OrderFacadeTest {
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
         Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
 
-        OrderRequest request = new OrderRequest(product.getId(), 1);
-        List<OrderRequest> requests = List.of(request);
+        OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), 1);
+        List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
 
         // when
-        OrderResponse response = orderFacade.order(user.getId(), requests);
+        long savedOrderId = orderFacade.order(user, request);
 
         // then
-        assertThat(response.orderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING.name());
+        Order foundOrder = entityManager.createQuery(
+                        "SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.orderProducts WHERE o.id = :id", Order.class)
+                .setParameter("id", savedOrderId)
+                .getSingleResult();
+
+        assertThat(foundOrder.getUser()).isEqualTo(user);
+        assertThat(foundOrder.getStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
+        assertThat(foundOrder.getOrderProducts()).hasSize(1);
     }
 
     @DisplayName("Order 저장 - 실패 - 주문 시점에 재고 부족인 경우 예외 발생")
@@ -76,11 +89,12 @@ class OrderFacadeTest {
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
         Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 1));
 
-        OrderRequest request = new OrderRequest(product.getId(), 2);
-        List<OrderRequest> requests = List.of(request);
+        OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), 2);
+        List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
 
         // when & then
-        assertThatThrownBy(() -> orderFacade.order(user.getId(), requests))
+        assertThatThrownBy(() -> orderFacade.order(user, request))
                 .isInstanceOf(InsufficientStockException.class);
     }
 }

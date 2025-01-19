@@ -2,6 +2,7 @@ package kr.hhplus.be.server.unit.domain.product.repository;
 
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.domain.OrderStatus;
+import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.repository.ProductCoreRepository;
@@ -16,7 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static kr.hhplus.be.server.domain.order.domain.OrderStatus.DELIVERED;
@@ -64,39 +70,44 @@ class ProductCoreRepositoryTest {
         Product product1 = ProductFixture.create(1L, 1_000, 10);
         Product product2 = ProductFixture.create(2L, 1_000, 10);
         Product product3 = ProductFixture.create(3L, 1_000, 10);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(productJpaRepository.findAll()).thenReturn(List.of(product1, product2, product3));
+        when(productJpaRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(product1, product2, product3)));
 
         // when
-        List<Product> products = productCoreRepository.findAllProducts();
+        Page<Product> products = productCoreRepository.findAllProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
         assertThat(products).contains(product1, product2, product3);
 
-        verify(productJpaRepository, times(1)).findAll();
+        verify(productJpaRepository, times(1)).findAll(pageable);
     }
 
     @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
     @Test
-    void findTopSellingProducts() {
+    void findBestSellingProducts() {
         // given
         Product product = ProductFixture.create(1L, 1_000, 10);
+        LocalDateTime startDateTime = LocalDateTime.now();
+        LocalDateTime endDateTime = startDateTime.minusDays(3);
         List<OrderStatus> statuses = List.of(PAYMENT_COMPLETED, DELIVERED);
+        Pageable pageable = PageRequest.ofSize(5);
+        BestSellingProduct bestSellingProduct = new BestSellingProduct(product.getId(), product.getName(), product.getPrice(), product.getStockQuantity(), 1);
 
         User user = UserFixture.USER(1L);
         Order order = new Order(user);
         order.addOrderProduct(product, 1);
 
-        when(productJpaRepository.findTopSellingProducts(statuses)).thenReturn(List.of(product));
+        when(productJpaRepository.findBestSellingProducts(startDateTime, endDateTime, pageable, statuses)).thenReturn(List.of(bestSellingProduct));
 
         // when
-        List<Product> products = productCoreRepository.findTopSellingProducts();
+        List<BestSellingProduct> bestSellingProducts = productCoreRepository.findBestSellingProducts(startDateTime, endDateTime, pageable);
 
         // then
-        assertThat(products).hasSize(1);
-        assertThat(products).contains(product);
+        assertThat(bestSellingProducts).hasSize(1);
+        assertThat(bestSellingProducts).contains(bestSellingProduct);
 
-        verify(productJpaRepository, times(1)).findTopSellingProducts(statuses);
+        verify(productJpaRepository, times(1)).findBestSellingProducts(startDateTime, endDateTime, pageable, statuses);
     }
 }

@@ -7,6 +7,7 @@ import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +21,8 @@ public class CouponService {
     private final UserCouponRepository userCouponRepository;
 
     @Transactional(readOnly = true)
-    public List<Coupon> findAvailableCoupons(User user) {
-        return userCouponRepository.findAvailableCouponsByUser(user);
+    public List<Coupon> findAvailableCoupons(User user, Pageable pageable) {
+        return userCouponRepository.findAvailableCouponsByUser(user, pageable);
     }
 
     @Transactional

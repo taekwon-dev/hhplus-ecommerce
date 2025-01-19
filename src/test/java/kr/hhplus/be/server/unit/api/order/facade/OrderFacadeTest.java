@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.unit.api.order.facade;
 
-import kr.hhplus.be.server.api.order.controller.request.OrderRequest;
-import kr.hhplus.be.server.api.order.controller.response.OrderResponse;
+import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
+import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;
 import kr.hhplus.be.server.api.order.facade.OrderFacade;
 import kr.hhplus.be.server.domain.order.domain.Order;
-import kr.hhplus.be.server.domain.order.domain.OrderStatus;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.order.service.dto.OrderDetailDto;
 import kr.hhplus.be.server.domain.product.domain.Category;
@@ -12,7 +11,6 @@ import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
@@ -29,9 +27,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderFacadeTest {
-
-    @Mock
-    private UserService userService;
 
     @Mock
     private ProductService productService;
@@ -52,9 +47,9 @@ class OrderFacadeTest {
         Category category = CategoryFixture.create("상의");
         int price = 12_000;
         int stockQuantity = 100;
-        Product product = new Product(name, category, price, stockQuantity);
-
         long productId = 1L;
+        Product product = new Product(productId, name, category, price, stockQuantity);
+
         int quantity = 5;
         ProductQuantityDto productQuantityDto = new ProductQuantityDto(productId, quantity);
         List<ProductQuantityDto> productQuantityDtos = List.of(productQuantityDto);
@@ -65,22 +60,20 @@ class OrderFacadeTest {
         Order expectedOrder = new Order(1L, user);
         expectedOrder.addOrderProduct(product, quantity);
 
-        OrderRequest request = new OrderRequest(productId, quantity);
-        List<OrderRequest> requests = List.of(request);
-
-        when(userService.findUserById(user.getId())).thenReturn(user);
+        OrderProductDetail orderProductDetail = new OrderProductDetail(product.getId(), quantity);
+        List<OrderProductDetail> orderProductDetails = List.of(orderProductDetail);
+        OrderCreateRequest request = new OrderCreateRequest(orderProductDetails);
+        
         doNothing().when(productService).validateStock(productQuantityDtos);
         when(productService.findById(productId)).thenReturn(product);
         when(orderService.order(user, orderDetailDtos)).thenReturn(expectedOrder);
 
         // when
-        OrderResponse response = orderFacade.order(user.getId(), requests);
+        long savedOrderId = orderFacade.order(user, request);
 
         // then
-        assertThat(response.orderId()).isEqualTo(user.getId());
-        assertThat(response.orderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING.name());
-
-        verify(userService, times(1)).findUserById(user.getId());
+        assertThat(savedOrderId).isEqualTo(expectedOrder.getId());
+        
         verify(productService, times(1)).validateStock(productQuantityDtos);
         verify(productService, times(1)).findById(productId);
         verify(orderService, times(1)).order(user, orderDetailDtos);

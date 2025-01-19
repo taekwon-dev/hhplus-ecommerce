@@ -5,8 +5,8 @@ import kr.hhplus.be.server.api.coupon.controller.response.CouponResponse;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +17,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CouponFacade {
 
-    private final UserService userService;
     private final CouponService couponService;
 
     @Transactional(readOnly = true)
-    public List<CouponResponse> findAvailableCoupons(long userId) {
-        User user = userService.findUserById(userId);
-        List<Coupon> coupons = couponService.findAvailableCoupons(user);
+    public List<CouponResponse> findAvailableCoupons(User user, Pageable pageable) {
+        List<Coupon> coupons = couponService.findAvailableCoupons(user, pageable);
         return mapToCouponResponses(coupons);
     }
 
@@ -34,8 +32,7 @@ public class CouponFacade {
     }
 
     @Transactional
-    public CouponResponse issue(long userId, CouponIssueRequest request) {
-        User user = userService.findUserById(userId);
+    public CouponResponse issue(User user, CouponIssueRequest request) {
         Coupon coupon = couponService.issue(user, request.couponId());
         return new CouponResponse(coupon.getId(), coupon.getCode(), coupon.getStartDate(), coupon.getEndDate());
     }

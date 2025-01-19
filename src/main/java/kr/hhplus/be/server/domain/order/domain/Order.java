@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.order.domain;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.domain.BaseEntity;
 import kr.hhplus.be.server.domain.order.domain.product.OrderProduct;
+import kr.hhplus.be.server.domain.order.exception.OrderNotFoundException;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.AccessLevel;
@@ -57,6 +58,12 @@ public class Order extends BaseEntity {
 
     public void complete() {
         this.status = OrderStatus.PAYMENT_COMPLETED;
+    }
+
+    public void validateOwnership(User user) {
+        if (!user.equals(this.user)) {
+            throw new OrderNotFoundException();
+        }
     }
 
     @Override
