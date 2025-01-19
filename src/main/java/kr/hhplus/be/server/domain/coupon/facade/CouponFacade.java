@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.api.coupon.facade;
+package kr.hhplus.be.server.domain.coupon.facade;
 
 import kr.hhplus.be.server.api.coupon.controller.request.CouponIssueRequest;
 import kr.hhplus.be.server.api.coupon.controller.response.CouponResponse;

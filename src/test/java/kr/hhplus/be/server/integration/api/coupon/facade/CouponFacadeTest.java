@@ -2,7 +2,7 @@ package kr.hhplus.be.server.integration.api.coupon.facade;
 
 import kr.hhplus.be.server.api.coupon.controller.request.CouponIssueRequest;
 import kr.hhplus.be.server.api.coupon.controller.response.CouponResponse;
-import kr.hhplus.be.server.api.coupon.facade.CouponFacade;
+import kr.hhplus.be.server.domain.coupon.facade.CouponFacade;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;

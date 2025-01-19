@@ -2,7 +2,7 @@ package kr.hhplus.be.server.unit.api.order.facade;
 
 import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
 import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;
-import kr.hhplus.be.server.api.order.facade.OrderFacade;
+import kr.hhplus.be.server.domain.order.facade.OrderFacade;
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.service.OrderService;
 import kr.hhplus.be.server.domain.order.service.dto.OrderDetailDto;

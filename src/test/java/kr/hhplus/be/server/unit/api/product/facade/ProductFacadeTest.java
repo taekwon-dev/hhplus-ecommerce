@@ -2,7 +2,7 @@ package kr.hhplus.be.server.unit.api.product.facade;
 
 import kr.hhplus.be.server.api.product.controller.response.BestSellingProductResponse;
 import kr.hhplus.be.server.api.product.controller.response.ProductAllResponse;
-import kr.hhplus.be.server.api.product.facade.ProductFacade;
+import kr.hhplus.be.server.domain.product.facade.ProductFacade;
 import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.service.ProductService;

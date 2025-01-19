@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.api.order.controller;
 
 import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
-import kr.hhplus.be.server.api.order.facade.OrderFacade;
+import kr.hhplus.be.server.domain.order.facade.OrderFacade;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

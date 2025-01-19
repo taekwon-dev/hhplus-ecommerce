@@ -2,7 +2,7 @@ package kr.hhplus.be.server.api.coupon.controller;
 
 import kr.hhplus.be.server.api.coupon.controller.request.CouponIssueRequest;
 import kr.hhplus.be.server.api.coupon.controller.response.CouponResponse;
-import kr.hhplus.be.server.api.coupon.facade.CouponFacade;
+import kr.hhplus.be.server.domain.coupon.facade.CouponFacade;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
