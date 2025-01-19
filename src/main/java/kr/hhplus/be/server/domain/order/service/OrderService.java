@@ -40,4 +40,8 @@ public class OrderService {
     public void completeOrder(Order order) {
         order.complete();
     }
+
+    public int calculateTotalPrice(Order order) {
+        return order.calculateTotalPrice();
+    }
 }
