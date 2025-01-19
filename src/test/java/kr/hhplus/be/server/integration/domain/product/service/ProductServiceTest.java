@@ -2,9 +2,9 @@ package kr.hhplus.be.server.integration.domain.product.service;
 
 import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
 import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;
-import kr.hhplus.be.server.api.order.facade.OrderFacade;
+import kr.hhplus.be.server.domain.order.facade.OrderFacade;
 import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
-import kr.hhplus.be.server.api.payment.facade.PaymentFacade;
+import kr.hhplus.be.server.domain.payment.facade.PaymentFacade;
 import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
 import kr.hhplus.be.server.domain.point.domain.Point;
 import kr.hhplus.be.server.domain.point.repository.PointRepository;

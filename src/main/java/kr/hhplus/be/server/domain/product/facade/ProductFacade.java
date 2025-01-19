@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.api.product.facade;
+package kr.hhplus.be.server.domain.product.facade;
 
 import kr.hhplus.be.server.api.product.controller.response.BestSellingProductResponse;
 import kr.hhplus.be.server.api.product.controller.response.ProductAllResponse;

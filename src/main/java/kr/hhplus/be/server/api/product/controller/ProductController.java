@@ -2,7 +2,7 @@ package kr.hhplus.be.server.api.product.controller;
 
 import kr.hhplus.be.server.api.product.controller.response.BestSellingProductResponse;
 import kr.hhplus.be.server.api.product.controller.response.ProductAllResponse;
-import kr.hhplus.be.server.api.product.facade.ProductFacade;
+import kr.hhplus.be.server.domain.product.facade.ProductFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;

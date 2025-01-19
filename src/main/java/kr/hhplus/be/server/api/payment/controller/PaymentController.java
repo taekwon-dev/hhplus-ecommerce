@@ -2,7 +2,7 @@ package kr.hhplus.be.server.api.payment.controller;
 
 import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
 import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;
-import kr.hhplus.be.server.api.payment.facade.PaymentFacade;
+import kr.hhplus.be.server.domain.payment.facade.PaymentFacade;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

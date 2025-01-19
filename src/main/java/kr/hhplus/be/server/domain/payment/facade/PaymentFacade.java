@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.api.payment.facade;
+package kr.hhplus.be.server.domain.payment.facade;
 
 import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
 import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;
@@ -37,7 +37,7 @@ public class PaymentFacade {
         productService.deductStock(productQuantityDtos);
 
         PaymentMethod paymentMethod = request.paymentMethod();
-        int totalPrice = order.calculateTotalPrice();
+        int totalPrice = orderService.calculateTotalPrice(order);
         Payment payment = paymentService.pay(order, paymentMethod, totalPrice);
 
         orderService.completeOrder(order);

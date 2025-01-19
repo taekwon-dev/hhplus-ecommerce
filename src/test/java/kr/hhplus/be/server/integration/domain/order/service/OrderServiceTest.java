@@ -145,4 +145,27 @@ class OrderServiceTest {
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
+
+    @DisplayName("Order 주문 총 금액 계산 - 성공")
+    @Test
+    void calculateTotalPrice() {
+        // given
+        User user = UserFixture.USER(1L);
+
+        String name = "라넌큘러스 오버핏 맨투맨";
+        Category category = CategoryFixture.create("상의");
+        int price = 12_000;
+        int stockQuantity = 100;
+        Product product = new Product(name, category, price, stockQuantity);
+
+        Order order = new Order(user);
+        int orderQuantity = 10;
+        order.addOrderProduct(product, orderQuantity);
+
+        // when
+        int totalPrice = orderService.calculateTotalPrice(order);
+
+        // then
+        assertThat(totalPrice).isEqualTo(price * orderQuantity);
+    }
 }

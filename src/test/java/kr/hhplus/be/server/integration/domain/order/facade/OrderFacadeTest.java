@@ -1,9 +1,9 @@
-package kr.hhplus.be.server.integration.api.order.facade;
+package kr.hhplus.be.server.integration.domain.order.facade;
 
 import jakarta.persistence.EntityManager;
 import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
 import kr.hhplus.be.server.api.order.controller.request.OrderProductDetail;
-import kr.hhplus.be.server.api.order.facade.OrderFacade;
+import kr.hhplus.be.server.domain.order.facade.OrderFacade;
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.order.domain.OrderStatus;
 import kr.hhplus.be.server.domain.product.domain.Category;
