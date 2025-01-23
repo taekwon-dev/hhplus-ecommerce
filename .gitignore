@@ -3,6 +3,8 @@ HELP.md
 build/
 data/
 logs/
+grafana/
+init/
 le/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
