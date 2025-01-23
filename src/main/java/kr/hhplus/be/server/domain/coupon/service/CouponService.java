@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
 import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
 import kr.hhplus.be.server.domain.coupon.repository.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.infra.lock.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,9 @@ public class CouponService {
         return userCouponRepository.findAvailableCouponsByUser(user, pageable);
     }
 
-    @Transactional
+    @DistributedLock(key = "'coupon-' + #couponId")
     public Coupon issue(User user, long couponId) {
-        Coupon coupon = couponRepository.findByIdWithLock(couponId);
+        Coupon coupon = couponRepository.findById(couponId);
         coupon.issue();
         if (userCouponRepository.existsByUserAndCoupon(user, coupon)) {
             throw new AlreadyIssuedCouponException();

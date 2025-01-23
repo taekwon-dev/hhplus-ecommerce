@@ -31,7 +31,6 @@ public class CouponFacade {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public CouponResponse issue(User user, CouponIssueRequest request) {
         Coupon coupon = couponService.issue(user, request.couponId());
         return new CouponResponse(coupon.getId(), coupon.getCode(), coupon.getStartDate(), coupon.getEndDate());
