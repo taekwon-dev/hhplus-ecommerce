@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CouponTest {
 
-    @DisplayName("Coupon 생성 - 성공")
+    @DisplayName("쿠폰을 생성한다.")
     @Test
     void createCoupon() {
         // given
@@ -35,9 +35,9 @@ class CouponTest {
         assertThat(coupon.getMaxIssuableCount()).isEqualTo(10);
     }
 
-    @DisplayName("Coupon 생성 - 실패 - 유효 기간 시작 날짜가 종료 날짜보다 늦음")
+    @DisplayName("쿠폰 생성 시, 유효 기간 시작 날짜가 종료 날짜보다 늦으면 예외가 발생한다.")
     @Test
-    void createCoupon_Fail_InvalidCouponDate() {
+    void createCoupon_invalidCouponDate() {
         // given
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.minusWeeks(1);
@@ -47,9 +47,9 @@ class CouponTest {
                 .isInstanceOf(InvalidCouponDateException.class);
     }
 
-    @DisplayName("Coupon 생성 - 실패 - 최대 쿠폰 발급 수가 음수")
+    @DisplayName("쿠폰 생성 시, 쿠폰 발급 가능 수량이 0보다 작은 경우 예외가 발생한다.")
     @Test
-    void createCoupon_Fail_InvalidMaxIssuableCount() {
+    void createCoupon_invalidMaxIssuableCount() {
         // given
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);
@@ -59,7 +59,7 @@ class CouponTest {
                 .isInstanceOf(InvalidMaxIssuableCountException.class);
     }
 
-    @DisplayName("Coupon 발급 - 성공")
+    @DisplayName("쿠폰 발급 시, 발급된 쿠폰 수량이 1 증가한다.")
     @Test
     void issue() {
         // given
@@ -72,12 +72,11 @@ class CouponTest {
 
         // then
         assertThat(coupon.getIssuedCount()).isOne();
-
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 최대 쿠폰 발급 수량 초과")
+    @DisplayName("쿠폰 발급 시, 발급 가능 수량을 초과한 경우 예외가 발생한다.")
     @Test
-    void issue_Fail_ExceededMaxIssuableCount() {
+    void issue_exceededMaxIssuableCount() {
         // given
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);

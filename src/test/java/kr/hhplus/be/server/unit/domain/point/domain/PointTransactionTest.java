@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PointTransactionTest {
 
-    @DisplayName("PointTransaction 생성 - 성공")
+    @DisplayName("포인트 충전, 사용 이력을 생성한다.")
     @ParameterizedTest
     @CsvSource({"CHARGE", "USAGE"})
     void createPointTransaction(PointTransactionType type) {

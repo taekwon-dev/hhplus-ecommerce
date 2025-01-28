@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PointTest {
 
-    @DisplayName("Point 생성 - 성공")
+    @DisplayName("포인트를 생성한다.")
     @Test
     void createPoint() {
         // given
@@ -32,7 +32,7 @@ class PointTest {
         assertThat(point.getBalance()).isEqualTo(balance);
     }
 
-    @DisplayName("Point 생성 - 실패 - 포인트 잔액이 음수인 경우 예외 발생")
+    @DisplayName("포인트 생성 시, 포인트 잔액이 0보다 작아지는 경우 예외가 발생한다.")
     @Test
     void createPoint_Fail_InvalidBalance() {
         // given
@@ -43,7 +43,7 @@ class PointTest {
                 .isInstanceOf(InvalidPointBalanceException.class);
     }
 
-    @DisplayName("Point 추가 - 성공")
+    @DisplayName("포인트를 충전한다.")
     @ParameterizedTest
     @CsvSource({
             "0, 1_000, 1_000",
@@ -62,7 +62,7 @@ class PointTest {
         assertThat(point.getBalance()).isEqualTo(expectedBalance);
     }
 
-    @DisplayName("Point 추가 - 실패 - 추가할 포인트가 음수인 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 0보다 작은 경우 예외가 발생한다.")
     @Test
     void addPoints_Fail_NegativeAmount() {
         // given
@@ -75,7 +75,7 @@ class PointTest {
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
-    @DisplayName("Point 추가 - 실패 - 추가할 포인트가 1,000 단위가 아닌 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 1,000 단위가 아닌 경우 예외가 발생한다.")
     @Test
     void addPoints_Fail_InvalidAmount() {
         // given
@@ -88,7 +88,7 @@ class PointTest {
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
-    @DisplayName("Point 차감 - 성공")
+    @DisplayName("포인트를 사용한다.")
     @Test
     void deductPoints() {
         // given
@@ -104,7 +104,7 @@ class PointTest {
         assertThat(point.getBalance()).isEqualTo(balance - amount);
     }
 
-    @DisplayName("Point 차감 - 실패 - 차감할 포인트가 음수인 경우 예외 발생")
+    @DisplayName("포인트 사용 시, 요청 포인트가 0보다 작은 경우 예외가 발생한다.")
     @Test
     void deductPoints_Fail_NegativeAmount() {
         // given
@@ -117,7 +117,7 @@ class PointTest {
                 .isInstanceOf(InvalidPointDeductionAmountException.class);
     }
 
-    @DisplayName("Point 차감 - 실패 - 포인트 잔액보다 차감할 포인트가 큰 경우 예외 발생")
+    @DisplayName("포인트 사용 시, 포인트 잔액보다 요청 포인트가 큰 경우 예외가 발생한다.")
     @Test
     void deductPoints_Fail_InsufficientBalance() {
         // given

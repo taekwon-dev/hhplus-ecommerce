@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OrderProductTest {
 
-    @DisplayName("OrderProduct 생성 - 성공")
+    @DisplayName("주문 상품을 생성한다.")
     @Test
     void createOrderProduct() {
         // given

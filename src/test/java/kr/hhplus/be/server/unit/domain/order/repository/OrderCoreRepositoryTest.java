@@ -28,7 +28,7 @@ class OrderCoreRepositoryTest {
     @InjectMocks
     private OrderCoreRepository orderCoreRepository;
 
-    @DisplayName("Order 저장 - 성공")
+    @DisplayName("주문 정보를 저장한다.")
     @Test
     void saveOrder() {
         // given
@@ -48,7 +48,7 @@ class OrderCoreRepositoryTest {
         verify(orderJpaRepository, times(1)).save(order);
     }
 
-    @DisplayName("Order ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 주문 정보를 조회한다.")
     @Test
     void findById() {
         // given
@@ -68,9 +68,9 @@ class OrderCoreRepositoryTest {
         verify(orderJpaRepository, times(1)).findById(1L);
     }
 
-    @DisplayName("Order ID 기반 조회 - 실패 - Order 찾지 못한 경우")
+    @DisplayName("ID 기반으로 주문 정보 조회 시, 주문 이력을 찾지 못한 경우 예외가 발생한다.")
     @Test
-    void findById_Fail_NotExist() {
+    void findById_doNotExist() {
         // given
         when(orderJpaRepository.findById(1L)).thenReturn(Optional.empty());
 

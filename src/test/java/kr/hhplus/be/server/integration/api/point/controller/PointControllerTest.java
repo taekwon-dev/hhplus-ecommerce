@@ -34,7 +34,7 @@ class PointControllerTest extends ControllerTest {
     @Autowired
     private PointRepository pointRepository;
 
-    @DisplayName("현재 포인트 잔액 조회 성공 시, 200을 응답한다.")
+    @DisplayName("포인트 잔액 조회 성공 시, 200을 응답한다.")
     @Test
     void getPointBalance() {
         // given
@@ -53,7 +53,7 @@ class PointControllerTest extends ControllerTest {
                 .then().log().all().statusCode(200);
     }
 
-    @DisplayName("현재 포인트 잔액 조회 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
+    @DisplayName("포인트 잔액 조회 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
     @Test
     void getPointBalance_invalidUserToken() {
         // given
@@ -73,7 +73,7 @@ class PointControllerTest extends ControllerTest {
                 .then().log().all().statusCode(401);
     }
 
-    @DisplayName("현재 포인트 잔액 조회 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
+    @DisplayName("포인트 잔액 조회 시, 인증 토큰이 누락된 경우 401 에러가 발생한다.")
     @Test
     void getPointBalance_doesNotExistToken() {
         // given

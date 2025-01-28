@@ -33,7 +33,7 @@ class UserCouponCoreRepositoryTest {
     @InjectMocks
     private UserCouponCoreRepository userCouponCoreRepository;
 
-    @DisplayName("UserCoupon 저장 - 성공")
+    @DisplayName("UserCoupon을 저장한다.")
     @Test
     void saveUserCoupon() {
         // given
@@ -57,7 +57,7 @@ class UserCouponCoreRepositoryTest {
     }
 
 
-    @DisplayName("사용 가능한 보유 Coupon 목록 조회 - 성공")
+    @DisplayName("유저가 사용 가능한 쿠폰 목록을 조회한다.")
     @Test
     void findAvailableCouponsByUser() {
         // given
@@ -84,7 +84,7 @@ class UserCouponCoreRepositoryTest {
         verify(userCouponJpaRepository, times(1)).findAvailableCouponsByUser(user, UserCouponStatus.AVAILABLE, pageable);
     }
 
-    @DisplayName("User의 Coupon 발급 여부 조회 - 성공 - 발급 이력 없음")
+    @DisplayName("유저에게 쿠폰 발급 이력이 없는 상태에서 쿠폰 발급 여부를 조회한다.")
     @Test
     void existsByUserAndCoupon() {
         // given
@@ -104,7 +104,7 @@ class UserCouponCoreRepositoryTest {
         verify(userCouponJpaRepository, times(1)).existsByUserAndCoupon(user, coupon);
     }
 
-    @DisplayName("User의 Coupon 발급 여부 조회 - 성공 - 발급 이력 있음")
+    @DisplayName("유저에게 쿠폰 발급 이력이 있는 상태에서 쿠폰 발급 여부를 조회한다.")
     @Test
     void existsByUserAndCoupon_withUserCouponExists() {
         // given

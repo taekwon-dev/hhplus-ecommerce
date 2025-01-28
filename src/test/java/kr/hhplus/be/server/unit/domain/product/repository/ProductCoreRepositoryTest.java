@@ -39,7 +39,7 @@ class ProductCoreRepositoryTest {
     @InjectMocks
     private ProductCoreRepository productCoreRepository;
 
-    @DisplayName("Product 저장 - 성공")
+    @DisplayName("상품을 저장한다.")
     @Test
     void saveProduct() {
         // given
@@ -63,7 +63,7 @@ class ProductCoreRepositoryTest {
         verify(productJpaRepository, times(1)).save(product);
     }
 
-    @DisplayName("모든 Product 목록 조회 - 성공")
+    @DisplayName("판매 가능한 모든 상품 목록을 조회한다.")
     @Test
     void findAllProducts() {
         // given
@@ -84,7 +84,7 @@ class ProductCoreRepositoryTest {
         verify(productJpaRepository, times(1)).findAll(pageable);
     }
 
-    @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
+    @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")
     @Test
     void findBestSellingProducts() {
         // given

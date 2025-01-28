@@ -48,7 +48,7 @@ class PointServiceTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("유저는 포인트를 조회한다 - 성공 - Point 테이블에 저장되지 않은 상태에서 초기값 반환")
+    @DisplayName("유저의 포인트 잔액 조회 시, 포인트 잔액을 조회할 수 없는 경우 0으로 초기화 한 뒤 반환한다.")
     @Test
     void findPointByUser() {
         // given
@@ -63,7 +63,7 @@ class PointServiceTest {
         assertThat(point.getBalance()).isZero();
     }
 
-    @DisplayName("유저는 포인트를 조회한다 - 성공 - Point 테이블에 저장된 상태에서 반환")
+    @DisplayName("유저의 포인트 잔액을 조회한다.")
     @Test
     void findPointByUser_AlreadyExist() {
         // given
@@ -80,7 +80,7 @@ class PointServiceTest {
         assertThat(point.getBalance()).isEqualTo(initialBalance);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 성공")
+    @DisplayName("포인트를 충전한다.")
     @Test
     void addPoints() {
         // given
@@ -97,7 +97,7 @@ class PointServiceTest {
         assertThat(chargedPoint.getBalance()).isEqualTo(initialBalance + amountToCharge);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트를 만족하지 않은 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 0 또는 음수인 경우 예외가 발생한다.")
     @Test
     void addPoints_Fail_InvalidMinimumAmount() {
         // given
@@ -109,7 +109,7 @@ class PointServiceTest {
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트 단위를 만족하지 않은 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 1,000 단위가 아닌 경우 예외가 발생한다.")
     @Test
     void addPoints_Fail_InvalidAmountUnit() {
         // given
@@ -121,7 +121,7 @@ class PointServiceTest {
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
-    @DisplayName("유저는 포인트를 사용한다 - 성공")
+    @DisplayName("포인트를 사용한다.")
     @Test
     void deductPoints() {
         // given
@@ -138,7 +138,7 @@ class PointServiceTest {
         assertThat(chargedPoint.getBalance()).isZero();
     }
 
-    @DisplayName("유저는 포인트를 사용한다 - 실패 - 0포인트 이하의 포인트 사용할 경우 예외 발생")
+    @DisplayName("포인트 사용 시, 요청 포인트가 0보다 작은 경우 예외가 발생한다.")
     @Test
     void deductPoints_Fail_InvalidAmount() {
         // given
@@ -150,7 +150,7 @@ class PointServiceTest {
                 .isInstanceOf(InvalidPointDeductionAmountException.class);
     }
 
-    @DisplayName("유저는 포인트를 사용한다 - 실패 - 포인트 잔액이 부족할 경우 예외 발생")
+    @DisplayName("포인트 사용 시, 포인트 잔액보다 요청 포인트가 큰 경우 예외가 발생한다.")
     @Test
     void deductPoints_Fail_InsufficientBalance() {
         // given
@@ -167,7 +167,7 @@ class PointServiceTest {
     /**
      * 동일한 유저가 동시에 3번 포인트 충전을 시도하고, 각 요청이 순차적으로 처리되어 잔액이 정확한지 확인하는 테스트입니다. (최초 잔액: 1,000원, 최종 잔액: 10,000원)
      */
-    @DisplayName("동일한 유저가 동시에 3번 포인트 충전을 시도한다.")
+    @DisplayName("동일한 유저가 동시에 3번 포인트 충전을 요청한다.")
     @Test
     void addPointsConcurrently() throws InterruptedException {
         // given
@@ -194,9 +194,9 @@ class PointServiceTest {
     }
 
     /**
-     * 동일한 유저가 동시에 3번 포인트 이용을 시도하고, 각 요청이 순차적으로 처리되어 잔액이 정확한지 확인하는 테스트입니다. (최초 잔액: 10,000원, 최종 잔액: 1,000원)
+     * 동일한 유저가 동시에 3번 포인트 사용을 시도하고, 각 요청이 순차적으로 처리되어 잔액이 정확한지 확인하는 테스트입니다. (최초 잔액: 10,000원, 최종 잔액: 1,000원)
      */
-    @DisplayName("동일한 유저가 동시에 3번 포인트 이용을 시도한다.")
+    @DisplayName("동일한 유저가 동시에 3번 포인트 사용을 요청한다.")
     @Test
     void deductPointsConcurrently() throws InterruptedException {
         // given
@@ -236,9 +236,9 @@ class PointServiceTest {
     }
 
     /**
-     * 동일한 유저가 동시에 포인트 충전과 이용을 시도하고, 각 요청이 순차적으로 처리되어 잔액이 정확한지 확인하는 테스트입니다. (최초 잔액: 10,000원, 최종 잔액: 10,000원)
+     * 동일한 유저가 동시에 포인트 충전과 사용을 시도하고, 각 요청이 순차적으로 처리되어 잔액이 정확한지 확인하는 테스트입니다. (최초 잔액: 10,000원, 최종 잔액: 10,000원)
      */
-    @DisplayName("동일한 유저가 동시에 포인트 충전과 이용을 시도한다.")
+    @DisplayName("동일한 유저가 동시에 포인트 충전과 사용을 요청한다.")
     @Test
     void addAndDeductPointsConcurrently() throws InterruptedException {
         // given

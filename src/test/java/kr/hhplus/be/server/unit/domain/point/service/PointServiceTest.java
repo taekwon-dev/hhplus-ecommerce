@@ -24,7 +24,7 @@ class PointServiceTest {
     @InjectMocks
     private PointService pointService;
 
-    @DisplayName("Point User 기반 조회 - 성공")
+    @DisplayName("유저의 포인트 잔액을 조회한다.")
     @Test
     void findPointByUser() {
         // given
@@ -46,7 +46,7 @@ class PointServiceTest {
         verify(pointCoreRepository, times(1)).findByUser(user);
     }
 
-    @DisplayName("Point 추가 - 성공")
+    @DisplayName("포인트를 충전한다.")
     @Test
     void addPoints() {
         // given
@@ -72,7 +72,7 @@ class PointServiceTest {
         verify(pointCoreRepository, times(1)).save(expectedPoint);
     }
 
-    @DisplayName("Point 차감 - 성공")
+    @DisplayName("포인트를 사용한다.")
     @Test
     void deductPoints() {
         // given

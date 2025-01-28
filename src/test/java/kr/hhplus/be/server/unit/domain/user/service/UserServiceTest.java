@@ -1,9 +1,7 @@
 package kr.hhplus.be.server.unit.domain.user.service;
 
 import kr.hhplus.be.server.domain.user.domain.User;
-import kr.hhplus.be.server.domain.user.exception.UserNotFoundException;
 import kr.hhplus.be.server.domain.user.repository.UserCoreRepository;
-import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import kr.hhplus.be.server.domain.user.service.UserService;
 import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +23,7 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @DisplayName("User ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 유저를 조회한다.")
     @Test
     void findUserById() {
         // given

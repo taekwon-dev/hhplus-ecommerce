@@ -26,7 +26,7 @@ class PointTransactionServiceTest {
     @InjectMocks
     private PointTransactionService pointTransactionService;
 
-    @DisplayName("PointTransaction 저장 - 성공")
+    @DisplayName("포인트 충전, 사용 이력을 기록한다.")
     @ParameterizedTest
     @CsvSource({"CHARGE", "USAGE"})
     void recordPointTransaction(PointTransactionType type) {

@@ -29,7 +29,7 @@ class CouponCoreRepositoryTest {
     @InjectMocks
     private CouponCoreRepository couponCoreRepository;
 
-    @DisplayName("Coupon 저장 - 성공")
+    @DisplayName("쿠폰을 저장한다.")
     @Test
     void saveCoupon() {
         // given
@@ -54,7 +54,7 @@ class CouponCoreRepositoryTest {
         verify(couponJpaRepository, times(1)).save(coupon);
     }
 
-    @DisplayName("[Lock] Coupon ID 기반 조회 - 성공")
+    @DisplayName("[SELECT ... FOR UPDATE] ID 기반으로 쿠폰을 조회한다.")
     @Test
     void findByIdWithLock() {
         // given
@@ -79,9 +79,9 @@ class CouponCoreRepositoryTest {
         verify(couponJpaRepository, times(1)).findByIdWithLock(1L);
     }
 
-    @DisplayName("[Lock] Coupon ID 기반 조회 - 실패 - Coupon 찾지 못한 경우")
+    @DisplayName("[SELECT ... FOR UPDATE] ID 기반으로 쿠폰을 조회 시, 쿠폰을 찾지 못한 경우 예외가 발생한다.")
     @Test
-    void findByIdWithLock_Fail_NotExist() {
+    void findByIdWithLock_doNotExist() {
         // given
         when(couponJpaRepository.findByIdWithLock(1L)).thenReturn(Optional.empty());
 

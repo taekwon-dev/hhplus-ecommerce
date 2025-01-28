@@ -55,7 +55,7 @@ class OrderFacadeTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Order 저장 - 성공")
+    @DisplayName("주문 정보를 저장한다.")
     @Test
     void order() {
         // given
@@ -81,9 +81,9 @@ class OrderFacadeTest {
         assertThat(foundOrder.getOrderProducts()).hasSize(1);
     }
 
-    @DisplayName("Order 저장 - 실패 - 주문 시점에 재고 부족인 경우 예외 발생")
+    @DisplayName("주문 시, 상품 재고가 부족한 경우 예외가 발생한다.")
     @Test
-    void order_Fail_InsufficientStockQuantity() {
+    void order_insufficientStockQuantity() {
         // given
         User user = userRepository.save(UserFixture.USER());
         Category category = categoryRepository.save(CategoryFixture.create("상의"));

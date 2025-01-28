@@ -53,7 +53,7 @@ class CouponFacadeTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("사용 가능한 보유 Coupon 목록 조회 - 성공")
+    @DisplayName("유저가 사용 가능한 쿠폰 목록을 조회한다.")
     @Test
     void findAvailableCouponsByUser() {
         // given
@@ -72,7 +72,7 @@ class CouponFacadeTest {
         assertThat(responses).hasSize(1);
     }
 
-    @DisplayName("Coupon 발급 - 성공")
+    @DisplayName("유저에게 쿠폰을 발급한다.")
     @Test
     void issue() {
         // given
@@ -91,7 +91,7 @@ class CouponFacadeTest {
         assertThat(response.code()).isEqualTo(coupon.getCode());
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 최대 쿠폰 발급 수량 초과")
+    @DisplayName("쿠폰 발급 시, 발급 가능 수량을 초과한 경우 예외가 발생한다.")
     @Test
     void issue_exceededMaxIssuableCount() {
         // given
@@ -107,7 +107,7 @@ class CouponFacadeTest {
                 .isInstanceOf(MaxIssuableCountExceededException.class);
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 이미 발급 받은 쿠폰")
+    @DisplayName("쿠폰 발급 시, 이미 유저에게 쿠폰 발급 이력이 있는 경우 예외가 발생한다.")
     @Test
     void issue_alreadyIssuedCoupon() {
         // given

@@ -80,7 +80,7 @@ class ProductServiceTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Product ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 상품을 조회한다.")
     @Test
     void findById() {
         // given
@@ -96,9 +96,9 @@ class ProductServiceTest {
         assertThat(foundProduct.getStockQuantity()).isEqualTo(product.getStockQuantity());
     }
 
-    @DisplayName("Product ID 기반 조회 - 실패")
+    @DisplayName("ID 기반으로 상품 조회 시, 상품을 찾지 못한 경우 예외가 발생한다.")
     @Test
-    void findById_Fail_NotFound() {
+    void findById_doNotFound() {
         // given
 
         // when & then
@@ -106,7 +106,7 @@ class ProductServiceTest {
                 .isInstanceOf(ProductNotFoundException.class);
     }
 
-    @DisplayName("Product 재고 여부 검증 - 성공 - 재고 있음")
+    @DisplayName("주문 수량 만큼 상품 재고가 충분한 경우 검증에 성공한다.")
     @Test
     void validateStock_withSufficientStock() {
         // given
@@ -121,7 +121,7 @@ class ProductServiceTest {
                 .doesNotThrowAnyException();
     }
 
-    @DisplayName("Product 재고 여부 검증 - 성공 - 재고 없음")
+    @DisplayName("주문 수량 만큼 상품 재고가 충분하지 않은 경우 예외가 발생한다.")
     @Test
     void validateStock_withInsufficientStock() {
         // given
@@ -136,7 +136,7 @@ class ProductServiceTest {
                 .isInstanceOf(InsufficientStockException.class);
     }
 
-    @DisplayName("Product 재고 차감 - 성공")
+    @DisplayName("요청한 수량만큼 상품 재고를 차감한다.")
     @Test
     void deductStock() {
         // given
@@ -151,9 +151,9 @@ class ProductServiceTest {
                 .doesNotThrowAnyException();
     }
 
-    @DisplayName("Product 재고 차감 - 실패 - 재고 부족")
+    @DisplayName("상품 재고 차감 시, 요청한 수량보다 상품의 재고가 부족한 경우 예외가 발생한다.")
     @Test
-    void deductStock_Fail_InvalidStockQuantity() {
+    void deductStock_insufficientStockQuantity() {
         // given
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
         Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 5));
@@ -166,7 +166,7 @@ class ProductServiceTest {
                 .isInstanceOf(InsufficientStockException.class);
     }
 
-    @DisplayName("Product 모든 목록 조회 - 성공")
+    @DisplayName("판매 가능한 모든 상품 목록을 조회한다.")
     @Test
     void findAllProducts() {
         // given
@@ -184,7 +184,7 @@ class ProductServiceTest {
         assertThat(products).contains(product1, product2, product3);
     }
 
-    @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
+    @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")
     @Test
     void findBestSellingProducts() {
         // given

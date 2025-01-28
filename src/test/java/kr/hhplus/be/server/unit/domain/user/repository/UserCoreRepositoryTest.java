@@ -27,7 +27,7 @@ class UserCoreRepositoryTest {
     @InjectMocks
     private UserCoreRepository userCoreRepository;
 
-    @DisplayName("User 저장 - 성공")
+    @DisplayName("유저를 저장한다.")
     @Test
     void saveUser() {
         // given
@@ -49,7 +49,7 @@ class UserCoreRepositoryTest {
         verify(userJpaRepository, times(1)).save(user);
     }
 
-    @DisplayName("User ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 유저를 조회한다.")
     @Test
     void findById() {
         // given
@@ -69,9 +69,9 @@ class UserCoreRepositoryTest {
         verify(userJpaRepository, times(1)).findById(1L);
     }
 
-    @DisplayName("User ID 기반 조회 - 실패 - 유저를 찾지 못한 경우 예외 발생")
+    @DisplayName("ID 기반으로 유저 조회 시, 대상 유저를 찾지 못한 경우 예외 발생한다.")
     @Test
-    void findById_Fail_NotExist() {
+    void findById_doNotExist() {
         // given
         when(userJpaRepository.findById(1L)).thenReturn(Optional.empty());
 

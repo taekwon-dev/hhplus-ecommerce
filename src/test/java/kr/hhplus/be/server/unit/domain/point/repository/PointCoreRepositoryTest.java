@@ -26,7 +26,7 @@ class PointCoreRepositoryTest {
     @InjectMocks
     private PointCoreRepository pointCoreRepository;
 
-    @DisplayName("Point 저장 - 성공")
+    @DisplayName("포인트를 저장한다.")
     @Test
     void savePoint() {
         // given
@@ -49,7 +49,7 @@ class PointCoreRepositoryTest {
         verify(pointJpaRepository, times(1)).save(point);
     }
 
-    @DisplayName("Point User 기반 조회 - 성공")
+    @DisplayName("유저의 포인트 잔액을 조회한다.")
     @Test
     void findByUser() {
         // given
@@ -71,9 +71,9 @@ class PointCoreRepositoryTest {
         verify(pointJpaRepository, times(1)).findPointByUser(user);
     }
 
-    @DisplayName("Point User 기반 조회 - 성공 - 포인트 정보를 찾지 못한 경우 0으로 초기화 한 뒤 반환")
+    @DisplayName("유저의 포인트 잔액 조회 시, 포인트 잔액을 조회할 수 없는 경우 0으로 초기화 한 뒤 반환한다.")
     @Test
-    void findByUser_Initialize_Balance() {
+    void findByUser_initializeBalanceWithZero() {
         // given
         User user = UserFixture.USER();
         int balance = 0;

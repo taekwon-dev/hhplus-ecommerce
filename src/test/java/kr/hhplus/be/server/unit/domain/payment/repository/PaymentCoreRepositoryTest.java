@@ -27,14 +27,13 @@ public class PaymentCoreRepositoryTest {
     @InjectMocks
     private PaymentCoreRepository paymentCoreRepository;
 
-    @DisplayName("Payment 저장 - 성공")
+    @DisplayName("결제 이력을 저장한다.")
     @Test
     void savePayment() {
         // given
         User user = UserFixture.USER();
         Order order = new Order(user);
         Payment payment = new Payment(order, PaymentMethod.POINT_PAYMENT, 1_000, PaymentStatus.CONFIRMED);
-
 
         when(paymentJpaRepository.save(payment)).thenReturn(payment);
 

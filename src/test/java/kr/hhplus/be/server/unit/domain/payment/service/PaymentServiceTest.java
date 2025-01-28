@@ -3,7 +3,6 @@ package kr.hhplus.be.server.unit.domain.payment.service;
 import kr.hhplus.be.server.domain.order.domain.Order;
 import kr.hhplus.be.server.domain.payment.domain.*;
 import kr.hhplus.be.server.domain.payment.repository.PaymentCoreRepository;
-import kr.hhplus.be.server.domain.payment.repository.PaymentRepository;
 import kr.hhplus.be.server.domain.payment.service.PaymentService;
 import kr.hhplus.be.server.domain.product.domain.Category;
 import kr.hhplus.be.server.domain.product.domain.Product;
@@ -35,7 +34,7 @@ class PaymentServiceTest {
     @InjectMocks
     private PaymentService paymentService;
 
-    @DisplayName("Payment 저장 - 성공")
+    @DisplayName("결제를 한다.")
     @Test
     void pay() {
         // given

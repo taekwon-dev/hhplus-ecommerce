@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserCouponTest {
 
-    @DisplayName("UserCoupon 생성 - 성공")
+    @DisplayName("유저에게 발급된 쿠폰 정보를 생성한다.")
     @Test
     void createUserCoupon() {
         // given

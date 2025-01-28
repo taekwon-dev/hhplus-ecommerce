@@ -53,7 +53,7 @@ class CouponServiceTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("사용 가능한 보유 Coupon 목록 조회 - 성공")
+    @DisplayName("유저가 사용 가능한 쿠폰 목록을 조회한다.")
     @Test
     void findAvailableCouponsByUser() {
         // given
@@ -72,7 +72,7 @@ class CouponServiceTest {
         assertThat(coupons).hasSize(1);
     }
 
-    @DisplayName("Coupon 발급 - 성공")
+    @DisplayName("유저에게 쿠폰을 발급한다.")
     @Test
     void issue() {
         // given
@@ -89,9 +89,9 @@ class CouponServiceTest {
         assertThat(issuedCoupon.getIssuedCount()).isEqualTo(1);
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 최대 쿠폰 발급 수량 초과")
+    @DisplayName("쿠폰 발급 시, 발급 가능 수량을 초과한 경우 예외가 발생한다.")
     @Test
-    void issue_Fail_ExceededMaxIssuableCount() {
+    void issue_exceededMaxIssuableCount() {
         // given
         User user = userRepository.save(UserFixture.USER());
 
@@ -104,9 +104,9 @@ class CouponServiceTest {
                 .isInstanceOf(MaxIssuableCountExceededException.class);
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 이미 발급 받은 쿠폰")
+    @DisplayName("쿠폰 발급 시, 이미 유저에게 쿠폰 발급 이력이 있는 경우 예외가 발생한다.")
     @Test
-    void issue_Fail_AlreadyIssuedCoupon() {
+    void issue_alreadyIssuedCoupon() {
         // given
         User user = userRepository.save(UserFixture.USER());
 
@@ -125,7 +125,7 @@ class CouponServiceTest {
      */
     @DisplayName("최대 발급 수량이 10개인 쿠폰을 20명의 서로 다른 유저가 쿠폰 발급을 신청할 때, 10개의 쿠폰이 모두 발급된 경우 나머지 10명은 쿠폰 발급에 실패한다.")
     @Test
-    void issueConcurrently_FailureAfterExceededMaxIssuableCount() throws InterruptedException {
+    void issueConcurrently_exceededMaxIssuableCount() throws InterruptedException {
         // given
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusWeeks(1);

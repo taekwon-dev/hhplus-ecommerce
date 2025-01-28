@@ -58,7 +58,7 @@ class PaymentServiceTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Payment 저장 - 성공")
+    @DisplayName("결제를 한다.")
     @Test
     void pay() {
         // given
@@ -82,7 +82,7 @@ class PaymentServiceTest {
         assertThat(savedPayment.getStatus()).isEqualTo(PaymentStatus.CONFIRMED);
     }
 
-    @DisplayName("Payment - 실패 - 포인트 잔액이 부족할 경우 예외 발생")
+    @DisplayName("결제 시 포인트 잔액 부족 시, 예외가 발생한다.")
     @Test
     void pay_Fail_InsufficientBalance() {
         // given

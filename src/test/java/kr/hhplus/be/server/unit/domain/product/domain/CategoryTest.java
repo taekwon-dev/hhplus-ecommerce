@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CategoryTest {
 
-    @DisplayName("Category 생성 - 성공")
+    @DisplayName("카테고리를 생성한다.")
     @Test
     void createCategory() {
         // given
@@ -22,7 +22,7 @@ class CategoryTest {
         assertThat(category.getParent()).isNull();
     }
 
-    @DisplayName("Category 생성 및 상위 카테고리 지정 - 성공")
+    @DisplayName("상위 카테고리 지정하여 카테고리를 생성한다.")
     @Test
     void createCategory_withParentCategory() {
         // given

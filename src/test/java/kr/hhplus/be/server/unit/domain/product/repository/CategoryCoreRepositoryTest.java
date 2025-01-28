@@ -1,11 +1,8 @@
 package kr.hhplus.be.server.unit.domain.product.repository;
 
 import kr.hhplus.be.server.domain.product.domain.Category;
-import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.repository.CategoryCoreRepository;
 import kr.hhplus.be.server.domain.product.repository.CategoryJpaRepository;
-import kr.hhplus.be.server.domain.product.repository.ProductCoreRepository;
-import kr.hhplus.be.server.domain.product.repository.ProductJpaRepository;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +23,7 @@ class CategoryCoreRepositoryTest {
     @InjectMocks
     private CategoryCoreRepository categoryCoreRepository;
 
-    @DisplayName("Category 저장 - 성공")
+    @DisplayName("카테고리를 저장한다.")
     @Test
     void saveCategory() {
         // given

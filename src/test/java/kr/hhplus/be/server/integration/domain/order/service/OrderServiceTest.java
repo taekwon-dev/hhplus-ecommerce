@@ -51,7 +51,7 @@ class OrderServiceTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Order 저장 - 성공")
+    @DisplayName("주문 정보를 저장한다.")
     @Test
     void order() {
         // given
@@ -71,7 +71,7 @@ class OrderServiceTest {
         assertThat(savedOrder.getOrderProducts()).hasSize(1);
     }
 
-    @DisplayName("Order ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 주문 정보를 조회한다.")
     @Test
     void findById() {
         // given
@@ -91,7 +91,7 @@ class OrderServiceTest {
         assertThat(foundOrder.getStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
     }
 
-    @DisplayName("Order 소유자 검증 검증 - 성공")
+    @DisplayName("주문자를 검증한다.")
     @Test
     void validateOrderOwnership() {
         // given
@@ -111,9 +111,9 @@ class OrderServiceTest {
                 .doesNotThrowAnyException();
     }
 
-    @DisplayName("Order 소유자 검증 검증 - 실패 - 유저가 생성한 주문이 아닌 경우 예외 발생")
+    @DisplayName("주문자 검증 시, 해당 주문을 요청한 유저가 아닌 경우 예외가 발생한다.")
     @Test
-    void validateOrderOwnership_Fail_NotMine() {
+    void validateOrderOwnership_notMine() {
         // given
         User user1 = UserFixture.USER(1L);
         User user2 = UserFixture.USER(2L);
@@ -132,7 +132,7 @@ class OrderServiceTest {
                 .isInstanceOf(OrderNotFoundException.class);
     }
 
-    @DisplayName("Order 주문 완료 상태 업데이트 - 성공")
+    @DisplayName("주문 상태를 결제 완료 상태로 변경한다.")
     @Test
     void completeOrder() {
         // given
@@ -146,7 +146,7 @@ class OrderServiceTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
 
-    @DisplayName("Order 주문 총 금액 계산 - 성공")
+    @DisplayName("주문할 상품의 총 결제 금액을 계산한다.")
     @Test
     void calculateTotalPrice() {
         // given

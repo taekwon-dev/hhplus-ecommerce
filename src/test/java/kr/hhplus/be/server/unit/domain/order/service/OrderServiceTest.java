@@ -30,7 +30,7 @@ class OrderServiceTest {
     @InjectMocks
     private OrderService orderService;
 
-    @DisplayName("Order 저장 - 성공")
+    @DisplayName("주문 정보를 저장한다.")
     @Test
     void order() {
         // given
@@ -62,7 +62,7 @@ class OrderServiceTest {
         verify(orderCoreRepository, times(1)).save(order);
     }
 
-    @DisplayName("Order ID 기반 조회 - 성공")
+    @DisplayName("ID 기반으로 주문 정보를 조회한다.")
     @Test
     void findById() {
         // given

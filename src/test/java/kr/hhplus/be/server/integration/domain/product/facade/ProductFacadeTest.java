@@ -76,7 +76,7 @@ class ProductFacadeTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Product 모든 목록 조회 - 성공")
+    @DisplayName("판매 가능한 모든 상품 목록을 조회한다.")
     @Test
     void findAllProducts() {
         // given
@@ -95,7 +95,7 @@ class ProductFacadeTest {
                 .containsExactlyInAnyOrder("라넌큘러스 오버핏 맨투맨1", "라넌큘러스 오버핏 맨투맨2", "라넌큘러스 오버핏 맨투맨3");
     }
 
-    @DisplayName("가장 많이 팔린 상위 5개 Product 조회 - 성공")
+    @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")
     @Test
     void findBestSellingProducts() {
         // given

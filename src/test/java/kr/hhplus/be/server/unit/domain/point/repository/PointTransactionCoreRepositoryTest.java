@@ -28,7 +28,7 @@ class PointTransactionCoreRepositoryTest {
     @InjectMocks
     private PointTransactionCoreRepository pointTransactionCoreRepository;
 
-    @DisplayName("PointTransaction 저장 - 성공")
+    @DisplayName("포인트 충전, 사용 이력을 저장한다.")
     @ParameterizedTest
     @CsvSource({"CHARGE", "USAGE"})
     void savePointTransaction(PointTransactionType type) {
@@ -50,7 +50,7 @@ class PointTransactionCoreRepositoryTest {
         verify(pointTransactionJpaRepository, times(1)).save(pointTransaction);
     }
 
-    @DisplayName("PointTransaction User 기반 포인트 충전/이용 기록 조회 - 성공")
+    @DisplayName("유저의 포인트 충전, 사용 이력을 조회한다.")
     @ParameterizedTest
     @CsvSource({"CHARGE", "USAGE"})
     void findByUser(PointTransactionType type) {

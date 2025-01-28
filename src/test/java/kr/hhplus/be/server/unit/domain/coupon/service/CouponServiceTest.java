@@ -3,7 +3,6 @@ package kr.hhplus.be.server.unit.domain.coupon.service;
 import kr.hhplus.be.server.domain.coupon.domain.Coupon;
 import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
 import kr.hhplus.be.server.domain.coupon.domain.user.UserCoupon;
-import kr.hhplus.be.server.domain.coupon.domain.user.UserCouponStatus;
 import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
 import kr.hhplus.be.server.domain.coupon.exception.MaxIssuableCountExceededException;
 import kr.hhplus.be.server.domain.coupon.repository.CouponCoreRepository;
@@ -40,7 +39,7 @@ class CouponServiceTest {
     @InjectMocks
     private CouponService couponService;
 
-    @DisplayName("사용 가능한 보유 Coupon 목록 조회 - 성공")
+    @DisplayName("유저가 사용 가능한 쿠폰 목록을 조회한다.")
     @Test
     void findAvailableCouponsByUser() {
         // given
@@ -67,7 +66,7 @@ class CouponServiceTest {
         verify(userCouponCoreRepository, times(1)).findAvailableCouponsByUser(user, pageable);
     }
 
-    @DisplayName("Coupon 발급 - 성공")
+    @DisplayName("유저에게 쿠폰을 발급한다.")
     @Test
     void issue() {
         // given
@@ -94,9 +93,9 @@ class CouponServiceTest {
         verify(couponCoreRepository, times(1)).save(coupon);
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 최대 쿠폰 발급 수량 초과")
+    @DisplayName("쿠폰 발급 시, 발급 가능 수량을 초과한 경우 예외가 발생한다.")
     @Test
-    void issue_Fail_ExceededMaxIssuableCount() {
+    void issue_exceededMaxIssuableCount() {
         // given
         User user = UserFixture.USER();
         LocalDateTime startDate = LocalDateTime.now();
@@ -110,9 +109,9 @@ class CouponServiceTest {
                 .isInstanceOf(MaxIssuableCountExceededException.class);
     }
 
-    @DisplayName("Coupon 발급 - 실패 - 이미 발급 받은 쿠폰")
+    @DisplayName("쿠폰 발급 시, 이미 유저에게 쿠폰 발급 이력이 있는 경우 예외가 발생한다.")
     @Test
-    void issue_Fail_AlreadyIssuedCoupon() {
+    void issue_alreadyIssuedCoupon() {
         // given
         User user = UserFixture.USER();
         LocalDateTime startDate = LocalDateTime.now();

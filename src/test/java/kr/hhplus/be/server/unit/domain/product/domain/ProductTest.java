@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ProductTest {
 
-    @DisplayName("Product 생성 - 성공")
+    @DisplayName("상품을 생성한다.")
     @Test
     void createProduct() {
         // given
@@ -31,7 +31,7 @@ class ProductTest {
         assertThat(product.getStockQuantity()).isEqualTo(stockQuantity);
     }
 
-    @DisplayName("Product 재고 차감 - 성공")
+    @DisplayName("요청한 수량만큼 상품 재고를 차감한다.")
     @Test
     void deductStockQuantity() {
         // given
@@ -51,9 +51,9 @@ class ProductTest {
         assertThat(product.getStockQuantity()).isZero();
     }
 
-    @DisplayName("Product 재고 차감 - 실패 - 재고 부족")
+    @DisplayName("상품 재고 차감 시, 요청한 수량보다 상품의 재고가 부족한 경우 예외가 발생한다.")
     @Test
-    void deductStockQuantity_Fail_InvalidStockQuantity() {
+    void deductStockQuantity_InsufficientStock() {
         // given
         String name = "라넌큘러스 오버핏 맨투맨";
         Category category = CategoryFixture.create("상의");

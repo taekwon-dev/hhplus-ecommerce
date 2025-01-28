@@ -69,7 +69,7 @@ class PaymentFacadeTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("Payment - 성공")
+    @DisplayName("결제를 한다.")
     @Test
     void pay() {
         // given
@@ -103,7 +103,7 @@ class PaymentFacadeTest {
         assertThat(foundProduct.getStockQuantity()).isEqualTo(9);
     }
 
-    @DisplayName("Payment - 실패 - 재고가 없는 경우 예외 발생")
+    @DisplayName("결제 시 상품 재고가 부족 시, 예외가 발생한다.")
     @Test
     void pay_Fail_InsufficientStockQuantity() {
         // given
@@ -126,7 +126,7 @@ class PaymentFacadeTest {
                 .isInstanceOf(InsufficientStockException.class);
     }
 
-    @DisplayName("Payment - 실패 - 포인트 잔액이 부족할 경우 예외 발생")
+    @DisplayName("결제 시 포인트 잔액 부족 시, 예외가 발생한다.")
     @Test
     void pay_Fail_InsufficientBalance() {
         // given

@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PaymentTest {
 
-    @DisplayName("Payment 생성 - 성공")
+    @DisplayName("결제 이력을 생성한다.")
     @Test
     void createPayment() {
         // given

@@ -17,7 +17,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 
 class OrderTest {
 
-    @DisplayName("Order 생성 - 성공")
+    @DisplayName("주문 정보을 생성한다.")
     @Test
     void createOrder() {
         // given
@@ -32,7 +32,7 @@ class OrderTest {
         assertThat(order.getOrderProducts().size()).isZero();
     }
 
-    @DisplayName("Order 에 OrderProduct 추가 - 성공")
+    @DisplayName("주문한 상품 정보를 추가한다.")
     @Test
     void createAndAssociateOrderProduct() {
         // given
@@ -51,7 +51,7 @@ class OrderTest {
         assertThat(order.getOrderProducts().size()).isOne();
     }
 
-    @DisplayName("Order 에 포함된 상품 총 결제 금액 계산 - 성공")
+    @DisplayName("주문할 상품의 총 결제 금액을 계산한다.")
     @Test
     void calculateTotalPrice() {
         // given
@@ -71,7 +71,7 @@ class OrderTest {
         assertThat(totalPrice).isEqualTo(price);
     }
 
-    @DisplayName("Order 결제 완료 상태 변경 - 성공")
+    @DisplayName("주문 상태를 결제 완료 상태로 변경한다.")
     @Test
     void complete() {
         // given
@@ -85,7 +85,7 @@ class OrderTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
     }
 
-    @DisplayName("Order 소유자 검증 - 성공")
+    @DisplayName("주문자를 검증한다.")
     @Test
     void validateOwnership() {
         // given
@@ -97,9 +97,9 @@ class OrderTest {
                 .doesNotThrowAnyException();
     }
 
-    @DisplayName("Order 소유자 검증 - 실패 - 유저가 생성한 주문이 아닌 경우 예외 발생")
+    @DisplayName("주문자 검증 시, 해당 주문을 요청한 유저가 아닌 경우 예외가 발생한다.")
     @Test
-    void validateOrderOwnership_Fail_NotMine() {
+    void validateOrderOwnership_notMine() {
         // given
         User user1 = UserFixture.USER(1L);
         User user2 = UserFixture.USER(2L);

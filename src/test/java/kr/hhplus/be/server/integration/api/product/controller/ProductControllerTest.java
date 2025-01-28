@@ -80,7 +80,7 @@ class ProductControllerTest extends ControllerTest {
     @MockitoBean
     private Clock clock;
 
-    @DisplayName("Product 모든 목록 조회 성공 시, 200을 응답한다.")
+    @DisplayName("판매 가능한 모든 상품 목록 조회 성공 시, 200을 응답한다.")
     @Test
     void findAllProducts() {
         // given
@@ -102,7 +102,7 @@ class ProductControllerTest extends ControllerTest {
                 .then().log().all().statusCode(200);
     }
 
-    @DisplayName("가장 많이 팔린 상위 5개 Product 조회 성공 시, 200을 응답한다.")
+    @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록 조회 성공 시, 200을 응답한다.")
     @Test
     void findBestSellingProducts() {
         // given

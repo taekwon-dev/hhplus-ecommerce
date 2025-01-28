@@ -49,7 +49,7 @@ class PointFacadeTest {
         databaseCleaner.execute();
     }
 
-    @DisplayName("유저는 포인트를 조회한다 - 성공")
+    @DisplayName("유저의 포인트 잔액을 조회한다.")
     @Test
     void findPointByUser() {
         // given
@@ -65,7 +65,7 @@ class PointFacadeTest {
         assertThat(response.balance()).isEqualTo(initialBalance);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 성공")
+    @DisplayName("포인트를 충전한다.")
     @Test
     void addPoints() {
         // given
@@ -87,7 +87,7 @@ class PointFacadeTest {
         assertThat(response.balance()).isEqualTo(initialBalance + amountToCharge);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트를 만족하지 않은 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 0 또는 음수인 경우 예외가 발생한다.")
     @Test
     void addPoints_invalidMinimumAmount() {
         // given
@@ -102,7 +102,7 @@ class PointFacadeTest {
                 .isInstanceOf(InvalidPointAdditionAmountException.class);
     }
 
-    @DisplayName("유저는 포인트를 충전한다 - 실패 - 최소 충전 포인트 단위를 만족하지 않은 경우 예외 발생")
+    @DisplayName("포인트 충전 시, 요청 포인트가 1,000 단위가 아닌 경우 예외가 발생한다.")
     @Test
     void addPoints_invalidAmountUnit() {
         // given

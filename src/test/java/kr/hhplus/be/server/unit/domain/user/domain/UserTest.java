@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserTest {
 
-    @DisplayName("User 생성 - 성공")
+    @DisplayName("유저를 생성한다.")
     @Test
     void createUser() {
         // given
