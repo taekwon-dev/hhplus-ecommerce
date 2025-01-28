@@ -12,6 +12,11 @@ public class CouponCoreRepository implements CouponRepository {
     private final CouponJpaRepository jpaRepository;
 
     @Override
+    public Coupon findById(Long id) {
+        return jpaRepository.findById(id).orElseThrow(CouponNotFoundException::new);
+    }
+
+    @Override
     public Coupon findByIdWithLock(Long id) {
         return jpaRepository.findByIdWithLock(id).orElseThrow(CouponNotFoundException::new);
     }

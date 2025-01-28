@@ -77,7 +77,7 @@ class CouponServiceTest {
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
         UserCoupon userCoupon = new UserCoupon(user, coupon);
         
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
         when(userCouponCoreRepository.existsByUserAndCoupon(user, coupon)).thenReturn(false);
         when(userCouponCoreRepository.save(userCoupon)).thenReturn(userCoupon);
         when(couponCoreRepository.save(coupon)).thenReturn(coupon);
@@ -88,7 +88,7 @@ class CouponServiceTest {
         // then
         assertThat(issuedCoupon.getIssuedCount()).isEqualTo(1);
 
-        verify(couponCoreRepository, times(1)).findByIdWithLock(coupon.getId());
+        verify(couponCoreRepository, times(1)).findById(coupon.getId());
         verify(userCouponCoreRepository, times(1)).existsByUserAndCoupon(user, coupon);
         verify(userCouponCoreRepository, times(1)).save(userCoupon);
         verify(couponCoreRepository, times(1)).save(coupon);
@@ -103,7 +103,7 @@ class CouponServiceTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 0);
 
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
 
         // when & then
         assertThatThrownBy(() -> couponService.issue(user, coupon.getId()))
@@ -119,7 +119,7 @@ class CouponServiceTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
 
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
         when(userCouponCoreRepository.existsByUserAndCoupon(user, coupon)).thenReturn(true);
 
         // when & then
