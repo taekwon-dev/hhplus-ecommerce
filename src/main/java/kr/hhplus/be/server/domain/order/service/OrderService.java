@@ -1,31 +1,34 @@
 package kr.hhplus.be.server.domain.order.service;
 
-import kr.hhplus.be.server.domain.order.domain.Order;
+import kr.hhplus.be.server.domain.order.model.Order;
+import kr.hhplus.be.server.domain.order.model.OrderProduct;
+import kr.hhplus.be.server.domain.order.repository.OrderProductRepository;
 import kr.hhplus.be.server.domain.order.repository.OrderRepository;
-import kr.hhplus.be.server.domain.order.service.dto.OrderDetailDto;
-import kr.hhplus.be.server.domain.product.domain.Product;
-import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.domain.order.service.dto.SaveOrderParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
 
     @Transactional
-    public Order order(User user, List<OrderDetailDto> orderDetailDtos) {
-        Order order = new Order(user);
-        for (OrderDetailDto orderDetailDto : orderDetailDtos) {
-            Product product = orderDetailDto.product();
-            int quantity = orderDetailDto.quantity();
-            order.addOrderProduct(product, quantity);
+    public Order saveOrder(Long userId, SaveOrderParam param) {
+        Order order = orderRepository.save(new Order(userId));
+        for (SaveOrderParam.Detail saveOrderParamDetail : param.saveOrderParamDetails()) {
+            OrderProduct orderProduct = orderProductRepository.save(new OrderProduct(
+                    order.getId(),
+                    saveOrderParamDetail.productId(),
+                    saveOrderParamDetail.salesPrice(),
+                    saveOrderParamDetail.quantity()
+            ));
+            order.addOrderProduct(orderProduct);
         }
-        return orderRepository.save(order);
+        return order;
     }
 
     @Transactional(readOnly = true)
@@ -33,15 +36,11 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
-    public void validateOrderOwnership(User user, Order order) {
-        order.validateOwnership(user);
+    public void validateOrderOwnership(Long userId, Order order) {
+        order.validateOwnership(userId);
     }
 
     public void completeOrder(Order order) {
         order.complete();
-    }
-
-    public int calculateTotalPrice(Order order) {
-        return order.calculateTotalPrice();
     }
 }

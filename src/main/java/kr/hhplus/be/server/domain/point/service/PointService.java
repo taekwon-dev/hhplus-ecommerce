@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.domain.point.service;
 
-import kr.hhplus.be.server.domain.point.domain.Point;
 import kr.hhplus.be.server.domain.point.repository.PointRepository;
-import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.domain.point.model.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,20 +13,20 @@ public class PointService {
     private final PointRepository pointRepository;
 
     @Transactional(readOnly = true)
-    public Point findPointByUser(User user) {
-        return pointRepository.findByUser(user);
+    public Point findPointByUserId(long userId) {
+        return pointRepository.findByUserId(userId);
     }
 
     @Transactional
-    public Point addPoints(User user, int amount) {
-        Point point = pointRepository.findByUserWithLock(user);
-        point.add(amount);
+    public Point charge(long userId, int amount) {
+        Point point = pointRepository.findByUserIdWithLock(userId);
+        point.charge(amount);
         return pointRepository.save(point);
     }
 
     @Transactional
-    public Point deductPoints(User user, int amount) {
-        Point point = pointRepository.findByUserWithLock(user);
+    public Point deduct(long userId, int amount) {
+        Point point = pointRepository.findByUserIdWithLock(userId);
         point.deduct(amount);
         return pointRepository.save(point);
     }

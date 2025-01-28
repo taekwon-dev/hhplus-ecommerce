@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.domain.coupon.service;
 
-import kr.hhplus.be.server.domain.coupon.domain.Coupon;
-import kr.hhplus.be.server.domain.coupon.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.coupon.exception.AlreadyIssuedCouponException;
+import kr.hhplus.be.server.domain.coupon.model.Coupon;
+import kr.hhplus.be.server.domain.coupon.model.IssuedCoupon;
 import kr.hhplus.be.server.domain.coupon.repository.CouponRepository;
-import kr.hhplus.be.server.domain.coupon.repository.UserCouponRepository;
-import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.domain.coupon.repository.IssuedCouponRepository;
 import kr.hhplus.be.server.infra.lock.DistributedLock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,21 +18,21 @@ import java.util.List;
 public class CouponService {
 
     private final CouponRepository couponRepository;
-    private final UserCouponRepository userCouponRepository;
+    private final IssuedCouponRepository issuedCouponRepository;
 
     @Transactional(readOnly = true)
-    public List<Coupon> findAvailableCoupons(User user, Pageable pageable) {
-        return userCouponRepository.findAvailableCouponsByUser(user, pageable);
+    public List<Coupon> findAvailableCoupons(long userId, Pageable pageable) {
+        return issuedCouponRepository.findAvailableCouponsByUserId(userId, pageable);
     }
 
     @DistributedLock(key = "'coupon-' + #couponId")
-    public Coupon issue(User user, long couponId) {
+    public Coupon issue(long userId, long couponId) {
         Coupon coupon = couponRepository.findById(couponId);
         coupon.issue();
-        if (userCouponRepository.existsByUserAndCoupon(user, coupon)) {
+        if (issuedCouponRepository.existsByUserIdAndCoupon(userId, coupon)) {
             throw new AlreadyIssuedCouponException();
         }
-        userCouponRepository.save(new UserCoupon(user, coupon));
+        issuedCouponRepository.save(new IssuedCoupon(userId, coupon));
         return couponRepository.save(coupon);
     }
 }

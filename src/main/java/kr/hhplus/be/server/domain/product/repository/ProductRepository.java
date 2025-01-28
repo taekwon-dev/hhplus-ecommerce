@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.domain.product.repository;
 
-import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
-import kr.hhplus.be.server.domain.product.domain.Product;
+import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
+import kr.hhplus.be.server.domain.product.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,7 +16,7 @@ public interface ProductRepository {
 
     Product findByIdWithLock(Long id);
 
-    Page<Product> findAllProducts(Pageable pageable);
+    Page<Product> findSellableProducts(Pageable pageable);
 
     List<BestSellingProduct> findBestSellingProducts(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 }

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.util.fixture;
 
-import kr.hhplus.be.server.domain.product.domain.Category;
+import kr.hhplus.be.server.domain.product.model.Category;
 
 public class CategoryFixture {
 

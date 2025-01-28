@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.product.exception;
 
-import kr.hhplus.be.server.global.exception.NotFoundException;
+import kr.hhplus.be.server.api.support.exception.NotFoundException;
 
 public class ProductNotFoundException extends NotFoundException {
 

@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.payment.exception;
 
-import kr.hhplus.be.server.global.exception.BadRequestException;
+import kr.hhplus.be.server.api.support.exception.BadRequestException;
 
 public class UnsupportedPaymentMethodException extends BadRequestException {
 

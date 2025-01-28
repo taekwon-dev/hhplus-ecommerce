@@ -1,8 +1,9 @@
 package kr.hhplus.be.server.api.payment.controller;
 
-import kr.hhplus.be.server.api.payment.controller.request.PaymentRequest;
-import kr.hhplus.be.server.api.payment.controller.response.PaymentResponse;
-import kr.hhplus.be.server.domain.payment.facade.PaymentFacade;
+import kr.hhplus.be.server.api.payment.application.dto.response.PaymentResult;
+import kr.hhplus.be.server.api.payment.controller.dto.request.PaymentRequest;
+import kr.hhplus.be.server.api.payment.controller.dto.response.PaymentResponse;
+import kr.hhplus.be.server.api.payment.application.PaymentFacade;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,8 @@ public class PaymentController {
     private final PaymentFacade paymentFacade;
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> pay(
-            @RequestBody PaymentRequest request,
-            User user
-    ) {
-        PaymentResponse response = paymentFacade.pay(user, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PaymentResponse> pay(User user, @RequestBody PaymentRequest request) {
+        PaymentResult result = paymentFacade.pay(user.getId(), request.toPaymentParam());
+        return ResponseEntity.ok(PaymentResponse.from(result));
     }
 }
