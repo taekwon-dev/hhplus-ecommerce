@@ -2,6 +2,8 @@
 
 패션 브랜드 플랫폼을 위한 E-Commerce 서버를 개발하고자 합니다 🙂
 
+[STEP11] 과제 링크: https://stealth-metal-dd1.notion.site/STEP11-1838778b3259805b948eeeaa0b4f564b?pvs=4
+
 ----
 
 ## Business Requirements
