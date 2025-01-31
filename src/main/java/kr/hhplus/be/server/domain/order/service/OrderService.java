@@ -16,6 +16,11 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
 
+    @Transactional(readOnly = true)
+    public Order findById(Long id) {
+        return orderRepository.findById(id);
+    }
+
     @Transactional
     public Order saveOrder(Long userId, SaveOrderParam param) {
         Order order = orderRepository.save(new Order(userId));
@@ -31,16 +36,11 @@ public class OrderService {
         return order;
     }
 
-    @Transactional(readOnly = true)
-    public Order findById(Long id) {
-        return orderRepository.findById(id);
-    }
-
     public void validateOrderOwnership(Long userId, Order order) {
         order.validateOwnership(userId);
     }
 
-    public void completeOrder(Order order) {
-        order.complete();
+    public void completePayment(Order order) {
+        order.completePayment();
     }
 }

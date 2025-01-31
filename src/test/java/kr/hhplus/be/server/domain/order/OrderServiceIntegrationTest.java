@@ -130,7 +130,7 @@ class OrderServiceIntegrationTest extends ServiceTest {
         Order savedOrder = orderService.saveOrder(user.getId(), param);
 
         // when
-        orderService.completeOrder(savedOrder);
+        orderService.completePayment(savedOrder);
 
         // then
         assertThat(savedOrder.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);

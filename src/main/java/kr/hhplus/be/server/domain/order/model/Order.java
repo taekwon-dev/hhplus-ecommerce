@@ -43,7 +43,7 @@ public class Order extends BaseEntity {
         this.orderPrice += orderProduct.calculateTotalPrice();
     }
 
-    public void complete() {
+    public void completePayment() {
         this.status = OrderStatus.PAYMENT_COMPLETED;
     }
 

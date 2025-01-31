@@ -60,7 +60,7 @@ class OrderTest {
         Order order = new Order(user.getId());
 
         // when
-        order.complete();
+        order.completePayment();
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);

@@ -29,7 +29,7 @@ public class PaymentFacade {
         PaymentMethod paymentMethod = param.paymentMethod();
         Payment payment = paymentService.pay(userId, order.getId(), param.paymentAmount(), paymentMethod);
 
-        orderService.completeOrder(order);
+        orderService.completePayment(order);
         dataPlatformClient.send(new PaymentCompletedEvent(userId, order.getId(), param.paymentAmount()));
         return PaymentResult.from(payment);
     }
