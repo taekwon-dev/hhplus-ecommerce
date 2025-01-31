@@ -1,7 +1,5 @@
-package kr.hhplus.be.server.domain.payment.infra;
+package kr.hhplus.be.server.infra.client;
 
-import kr.hhplus.be.server.domain.payment.domain.DataPlatformClient;
-import kr.hhplus.be.server.domain.payment.domain.PaymentCompletedEvent;
 import org.springframework.stereotype.Component;
 
 @Component

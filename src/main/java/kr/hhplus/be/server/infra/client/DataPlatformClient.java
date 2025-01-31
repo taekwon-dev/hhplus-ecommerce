@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.domain.payment.domain;
+package kr.hhplus.be.server.infra.client;
 
 public interface DataPlatformClient {
 
