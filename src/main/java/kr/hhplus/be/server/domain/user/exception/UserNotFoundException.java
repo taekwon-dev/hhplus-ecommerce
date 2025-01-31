@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.user.exception;
 
-import kr.hhplus.be.server.global.exception.NotFoundException;
+import kr.hhplus.be.server.api.support.exception.NotFoundException;
 
 public class UserNotFoundException extends NotFoundException {
 

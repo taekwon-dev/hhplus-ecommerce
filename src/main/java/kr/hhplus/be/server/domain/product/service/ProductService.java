@@ -1,10 +1,9 @@
 package kr.hhplus.be.server.domain.product.service;
 
-import kr.hhplus.be.server.domain.product.domain.BestSellingProduct;
-import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
-import kr.hhplus.be.server.domain.product.service.dto.ProductQuantityDto;
-import kr.hhplus.be.server.domain.product.domain.Product;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
+import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
+import kr.hhplus.be.server.domain.product.service.dto.DeductStockParam;
+import kr.hhplus.be.server.domain.product.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,27 +26,17 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    @Transactional(readOnly = true)
-    public void validateStock(List<ProductQuantityDto> productQuantityDtos) {
-        for (ProductQuantityDto productQuantityDto : productQuantityDtos) {
-            Product product = productRepository.findById(productQuantityDto.productId());
-            if (product.getStockQuantity() < productQuantityDto.quantity()) {
-                throw new InsufficientStockException();
-            }
-        }
-    }
-
     @Transactional
-    public void deductStock(List<ProductQuantityDto> productQuantityDtos) {
-        for (ProductQuantityDto productQuantityDto : productQuantityDtos) {
-            Product product = productRepository.findByIdWithLock(productQuantityDto.productId());
-            product.deductStockQuantity(productQuantityDto.quantity());
+    public void deductStock(DeductStockParam param) {
+        for (DeductStockParam.Detail deductStockDetail : param.deductStockParamDetails()) {
+            Product product = productRepository.findByIdWithLock(deductStockDetail.productId());
+            product.deductStock(deductStockDetail.quantity());
         }
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> findAllProducts(Pageable pageable) {
-        return productRepository.findAllProducts(pageable);
+    public Page<Product> findSellableProducts(Pageable pageable) {
+        return productRepository.findSellableProducts(pageable);
     }
 
     @Transactional(readOnly = true)

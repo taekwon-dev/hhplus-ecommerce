@@ -1,9 +1,8 @@
 package kr.hhplus.be.server.domain.point.service;
 
-import kr.hhplus.be.server.domain.point.domain.PointTransaction;
-import kr.hhplus.be.server.domain.point.domain.PointTransactionType;
 import kr.hhplus.be.server.domain.point.repository.PointTransactionRepository;
-import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.domain.point.model.PointTransaction;
+import kr.hhplus.be.server.domain.point.model.PointTransactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +14,8 @@ public class PointTransactionService {
     private final PointTransactionRepository pointTransactionRepository;
 
     @Transactional
-    public PointTransaction recordPointTransaction(User user, int amount, PointTransactionType type) {
-        PointTransaction pointTransaction = new PointTransaction(user, amount, type);
+    public PointTransaction recordPointTransaction(long userId, int amount, PointTransactionType type) {
+        PointTransaction pointTransaction = new PointTransaction(userId, amount, type);
         return pointTransactionRepository.save(pointTransaction);
     }
 }

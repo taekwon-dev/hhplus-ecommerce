@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.util.fixture;
 
-import kr.hhplus.be.server.domain.coupon.domain.Coupon;
-import kr.hhplus.be.server.domain.coupon.domain.CouponDiscountType;
+import kr.hhplus.be.server.domain.coupon.model.Coupon;
+import kr.hhplus.be.server.domain.coupon.model.CouponDiscountType;
 
 import java.time.LocalDateTime;
 

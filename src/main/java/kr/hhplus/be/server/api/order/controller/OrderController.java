@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.api.order.controller;
 
-import kr.hhplus.be.server.api.order.controller.request.OrderCreateRequest;
-import kr.hhplus.be.server.domain.order.facade.OrderFacade;
+import kr.hhplus.be.server.api.order.application.OrderFacade;
+import kr.hhplus.be.server.api.order.controller.dto.request.CreateOrderRequest;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +20,8 @@ public class OrderController {
     private final OrderFacade orderFacade;
 
     @PostMapping
-    public ResponseEntity<Void> createOrder(
-            @RequestBody OrderCreateRequest request,
-            User user
-    ) {
-        long orderId = orderFacade.order(user, request);
+    public ResponseEntity<Void> createOrder(User user, @RequestBody CreateOrderRequest request) {
+        long orderId = orderFacade.order(user.getId(), request.toCreateOrderParam());
         return ResponseEntity.created(URI.create("/v1/orders/" + orderId)).build();
     }
 }

@@ -19,7 +19,7 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 @ActiveProfiles("test")
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ControllerTest {
+public abstract class ControllerTest {
 
     protected RequestSpecification spec;
 

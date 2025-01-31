@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.domain.product.exception;
 
-import kr.hhplus.be.server.global.exception.BadRequestException;
+import kr.hhplus.be.server.api.support.exception.BadRequestException;
 
 public class InsufficientStockException extends BadRequestException {
 

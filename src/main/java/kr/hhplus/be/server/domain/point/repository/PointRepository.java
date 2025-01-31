@@ -1,13 +1,12 @@
 package kr.hhplus.be.server.domain.point.repository;
 
-import kr.hhplus.be.server.domain.point.domain.Point;
-import kr.hhplus.be.server.domain.user.domain.User;
+import kr.hhplus.be.server.domain.point.model.Point;
 
 public interface PointRepository {
 
     Point save(Point point);
 
-    Point findByUser(User user);
+    Point findByUserId(long userId);
 
-    Point findByUserWithLock(User user);
+    Point findByUserIdWithLock(long userId);
 }

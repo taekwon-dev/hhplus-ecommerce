@@ -1,25 +1,22 @@
 package kr.hhplus.be.server.domain.payment.domain;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.domain.order.domain.Order;
+import kr.hhplus.be.server.domain.BaseEntity;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(of = "id")
-public class Payment {
+public class Payment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @JoinColumn(nullable = false)
+    private Long orderId;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod method;
@@ -29,15 +26,15 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    public Payment(Long id, Order order, PaymentMethod method, int amount, PaymentStatus status) {
-        this(order, method, amount, status);
+    public Payment(Long id, Long orderId, int amount, PaymentMethod method, PaymentStatus status) {
+        this(orderId, amount, method, status);
         this.id = id;
     }
 
-    public Payment(Order order, PaymentMethod method, int amount, PaymentStatus status) {
-        this.order = order;
-        this.method = method;
+    public Payment(Long orderId, int amount, PaymentMethod method, PaymentStatus status) {
+        this.orderId = orderId;
         this.amount = amount;
+        this.method = method;
         this.status = status;
     }
 }
