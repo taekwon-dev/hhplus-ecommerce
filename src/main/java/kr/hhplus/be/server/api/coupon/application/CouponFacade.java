@@ -23,6 +23,7 @@ public class CouponFacade {
         return AvailableCouponsResult.from(coupons);
     }
 
+    @Transactional
     public IssueCouponResult issue(long userId, Long couponId) {
         Coupon coupon = couponService.issue(userId, couponId);
         return IssueCouponResult.from(coupon);
