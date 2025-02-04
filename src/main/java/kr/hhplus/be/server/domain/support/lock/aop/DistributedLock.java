@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infra.lock;
+package kr.hhplus.be.server.domain.support.lock.aop;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

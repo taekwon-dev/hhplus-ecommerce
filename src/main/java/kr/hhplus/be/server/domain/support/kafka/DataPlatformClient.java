@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infra.client;
+package kr.hhplus.be.server.domain.support.kafka;
 
 public interface DataPlatformClient {
 
