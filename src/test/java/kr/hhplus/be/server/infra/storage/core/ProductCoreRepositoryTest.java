@@ -17,8 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -72,16 +70,16 @@ class ProductCoreRepositoryTest {
         Product product3 = ProductFixture.create(3L, 1_000, 10);
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(productJpaRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(product1, product2, product3)));
+        when(productJpaRepository.findSellableProducts(pageable)).thenReturn(List.of(product1, product2, product3));
 
         // when
-        Page<Product> products = productCoreRepository.findSellableProducts(pageable);
+        List<Product> products = productCoreRepository.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
         assertThat(products).contains(product1, product2, product3);
 
-        verify(productJpaRepository, times(1)).findAll(pageable);
+        verify(productJpaRepository, times(1)).findSellableProducts(pageable);
     }
 
     @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")

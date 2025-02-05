@@ -15,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -25,6 +23,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,10 +53,10 @@ class ProductServiceTest {
         int stockQuantity = 100;
         Product product = new Product(1L, name, category, price, stockQuantity);
 
-        when(productCoreRepository.findById(product.getId())).thenReturn(product);
+        when(productCoreRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
         // when
-        Product foundProduct = productService.findById(product.getId());
+        Product foundProduct = productService.findProductById(product.getId());
 
         // then
         assertThat(foundProduct.getName()).isEqualTo(product.getName());
@@ -81,7 +80,7 @@ class ProductServiceTest {
         List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 5));
         DeductStockParam param = new DeductStockParam(deductStockParamDetails);
 
-        when(productCoreRepository.findByIdWithLock(1L)).thenReturn(product);
+        when(productCoreRepository.findByIdWithLock(1L)).thenReturn(Optional.of(product));
 
         // when & then
         assertThatCode(() -> productService.deductStock(param))
@@ -101,7 +100,7 @@ class ProductServiceTest {
         List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 5));
         DeductStockParam param = new DeductStockParam(deductStockParamDetails);
 
-        when(productCoreRepository.findByIdWithLock(product.getId())).thenReturn(product);
+        when(productCoreRepository.findByIdWithLock(product.getId())).thenReturn(Optional.of(product));
 
         // when & then
         assertThatThrownBy(() -> productService.deductStock(param))
@@ -117,10 +116,10 @@ class ProductServiceTest {
         Product product3 = ProductFixture.create(3L, 1_000, 10);
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(productCoreRepository.findSellableProducts(pageable)).thenReturn(new PageImpl<>(List.of(product1, product2, product3)));
+        when(productCoreRepository.findSellableProducts(pageable)).thenReturn(List.of(product1, product2, product3));
 
         // when
-        Page<Product> products = productService.findSellableProducts(pageable);
+        List<Product> products = productService.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);

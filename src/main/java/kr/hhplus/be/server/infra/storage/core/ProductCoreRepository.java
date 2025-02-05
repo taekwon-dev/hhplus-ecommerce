@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static kr.hhplus.be.server.domain.order.model.OrderStatus.*;
 
@@ -27,18 +28,18 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
-    public Product findById(Long id) {
-        return jpaRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    public Optional<Product> findById(Long id) {
+        return jpaRepository.findById(id);
     }
 
     @Override
-    public Product findByIdWithLock(Long id) {
-        return jpaRepository.findByIdWithLock(id).orElseThrow(ProductNotFoundException::new);
+    public Optional<Product> findByIdWithLock(Long id) {
+        return jpaRepository.findByIdWithLock(id);
     }
 
     @Override
-    public Page<Product> findSellableProducts(Pageable pageable) {
-        return jpaRepository.findAll(pageable);
+    public List<Product> findSellableProducts(Pageable pageable) {
+        return jpaRepository.findSellableProducts(pageable);
     }
 
     @Override

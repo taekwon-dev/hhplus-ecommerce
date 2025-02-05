@@ -19,6 +19,9 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdWithLock(Long id);
 
+    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.stockQuantity > 0")
+    List<Product> findSellableProducts(Pageable pageable);
+
     @Query("""
         SELECT NEW kr.hhplus.be.server.domain.product.model.BestSellingProduct(
             p.id,

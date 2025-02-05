@@ -12,6 +12,7 @@ import kr.hhplus.be.server.domain.payment.domain.PaymentStatus;
 import kr.hhplus.be.server.domain.point.model.Point;
 import kr.hhplus.be.server.domain.point.exception.InsufficientPointBalanceException;
 import kr.hhplus.be.server.domain.point.repository.PointRepository;
+import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import kr.hhplus.be.server.domain.product.model.Category;
 import kr.hhplus.be.server.domain.product.model.Product;
 import kr.hhplus.be.server.domain.product.repository.CategoryRepository;
@@ -82,7 +83,7 @@ class PaymentFacadeTest extends ServiceTest {
         Order foundOrder = orderRepository.findById(savedOrderId);
         assertThat(foundOrder.getStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED);
 
-        Product foundProduct = productRepository.findById(product.getId());
+        Product foundProduct = productRepository.findById(product.getId()).orElseThrow(ProductNotFoundException::new);
         assertThat(foundProduct.getStockQuantity()).isEqualTo(9);
     }
 

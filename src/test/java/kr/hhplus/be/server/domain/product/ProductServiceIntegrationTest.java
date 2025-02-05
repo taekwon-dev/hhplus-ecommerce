@@ -24,7 +24,6 @@ import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -75,7 +74,7 @@ class ProductServiceIntegrationTest extends ServiceTest {
         Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
 
         // when
-        Product foundProduct = productService.findById(product.getId());
+        Product foundProduct = productService.findProductById(product.getId());
 
         // then
         assertThat(foundProduct.getName()).isEqualTo(product.getName());
@@ -89,7 +88,7 @@ class ProductServiceIntegrationTest extends ServiceTest {
         // given
 
         // when & then
-        assertThatThrownBy(() -> productService.findById(99L))
+        assertThatThrownBy(() -> productService.findProductById(99L))
                 .isInstanceOf(ProductNotFoundException.class);
     }
 
@@ -98,7 +97,7 @@ class ProductServiceIntegrationTest extends ServiceTest {
     void deductStock() {
         // given
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
-        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 1));
 
         List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 1));
         DeductStockParam param = new DeductStockParam(deductStockParamDetails);
@@ -134,7 +133,8 @@ class ProductServiceIntegrationTest extends ServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Page<Product> products = productService.findSellableProducts(pageable);
+        List<Product> products = productService.findSellableProducts(pageable);
+        productService.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
