@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.product.service;
 
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.service.dto.DeductStockParam;
@@ -41,7 +42,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findSellableProducts(Pageable pageable) {
+    public List<SellableProduct> findSellableProducts(Pageable pageable) {
         return productRepository.findSellableProducts(pageable);
     }
 

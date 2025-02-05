@@ -39,18 +39,17 @@ class ProductControllerTest extends ControllerTest {
 
     private static final FieldDescriptor[] PRODUCTS_RESPONSE_FIELD_DESCRIPTORS = {
             fieldWithPath("products[].productId").description("상품 ID"),
+            fieldWithPath("products[].categoryName").description("상품 카테고리 이름"),
             fieldWithPath("products[].name").description("상품 이름"),
-            fieldWithPath("products[].price").description("상품 가격"),
+            fieldWithPath("products[].salesPrice").description("상품 가격"),
             fieldWithPath("products[].stockQuantity").description("재고 수량"),
-            fieldWithPath("totalPages").description("전체 페이지 수"),
-            fieldWithPath("page").description("현재 페이지 번호"),
-            fieldWithPath("size").description("한 페이지에 포함된 데이터 개수")
+            fieldWithPath("products[].createdAt").description("상품 등록 시간"),
     };
 
     private static final FieldDescriptor[] BEST_SELLING_PRODUCTS_RESPONSE_FIELD_DESCRIPTORS = {
             fieldWithPath("products[].productId").description("상품 ID"),
             fieldWithPath("products[].name").description("상품 이름"),
-            fieldWithPath("products[].price").description("상품 가격"),
+            fieldWithPath("products[].salesPrice").description("상품 가격"),
             fieldWithPath("products[].stockQuantity").description("재고 수량"),
             fieldWithPath("products[].soldQuantity").description("판매 수량")
     };

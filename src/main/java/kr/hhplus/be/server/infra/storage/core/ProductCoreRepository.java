@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.infra.storage.core;
 
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.model.Product;
@@ -38,7 +39,7 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
-    public List<Product> findSellableProducts(Pageable pageable) {
+    public List<SellableProduct> findSellableProducts(Pageable pageable) {
         return jpaRepository.findSellableProducts(pageable);
     }
 

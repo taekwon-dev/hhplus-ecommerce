@@ -12,6 +12,7 @@ import kr.hhplus.be.server.domain.product.model.Category;
 import kr.hhplus.be.server.domain.product.model.Product;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
 import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.domain.product.repository.CategoryRepository;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.service.ProductService;
@@ -127,18 +128,16 @@ class ProductServiceIntegrationTest extends ServiceTest {
     void findSellableProducts() {
         // given
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
-        Product product1 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨1", category, 10_000, 50));
-        Product product2 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨2", category, 10_000, 50));
-        Product product3 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨3", category, 10_000, 50));
+        productRepository.save(new Product("라넌큘러스 오버핏 맨투맨1", category, 10_000, 50));
+        productRepository.save(new Product("라넌큘러스 오버핏 맨투맨2", category, 10_000, 50));
+        productRepository.save(new Product("라넌큘러스 오버핏 맨투맨3", category, 10_000, 50));
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        List<Product> products = productService.findSellableProducts(pageable);
-        productService.findSellableProducts(pageable);
+        List<SellableProduct> products = productService.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
-        assertThat(products).contains(product1, product2, product3);
     }
 
     @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")

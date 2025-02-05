@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.api.product.controller;
 
 import kr.hhplus.be.server.api.product.application.dto.BestSellingProductsResult;
-import kr.hhplus.be.server.api.product.application.dto.ProductsResult;
+import kr.hhplus.be.server.api.product.application.dto.SellableProductsResult;
 import kr.hhplus.be.server.api.product.controller.response.BestSellingProductsResponse;
 import kr.hhplus.be.server.api.product.application.ProductFacade;
 import kr.hhplus.be.server.api.product.controller.response.ProductsResponse;
@@ -21,7 +21,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ProductsResponse> findSellableProducts(Pageable pageable) {
-        ProductsResult result = productFacade.findSellableProducts(pageable);
+        SellableProductsResult result = productFacade.findSellableProducts(pageable);
         return ResponseEntity.ok(ProductsResponse.from(result));
     }
 

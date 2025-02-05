@@ -11,7 +11,7 @@ public record BestSellingProductsResult(
     public record BestSellingProductDetail(
             long productId,
             String name,
-            int price,
+            int salesPrice,
             int stockQuantity,
             long soldQuantity
     ) {
@@ -23,7 +23,7 @@ public record BestSellingProductsResult(
                         .map(bestSellingProduct -> new BestSellingProductsResult.BestSellingProductDetail(
                                 bestSellingProduct.productId(),
                                 bestSellingProduct.name(),
-                                bestSellingProduct.price(),
+                                bestSellingProduct.salesPrice(),
                                 bestSellingProduct.stockQuantity(),
                                 bestSellingProduct.soldQuantity()
                         ))

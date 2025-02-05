@@ -4,6 +4,7 @@ import jakarta.persistence.LockModeType;
 import kr.hhplus.be.server.domain.order.model.OrderStatus;
 import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -19,8 +20,21 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdWithLock(Long id);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.stockQuantity > 0")
-    List<Product> findSellableProducts(Pageable pageable);
+
+    @Query("""
+        SELECT NEW kr.hhplus.be.server.domain.product.model.SellableProduct(
+            p.id,
+            c.name,
+            p.name,
+            p.salesPrice,
+            p.stockQuantity,
+            p.createdAt
+        )
+        FROM Product p
+        JOIN Category c ON p.category.id = c.id
+        WHERE p.stockQuantity > 0
+    """)
+    List<SellableProduct> findSellableProducts(Pageable pageable);
 
     @Query("""
         SELECT NEW kr.hhplus.be.server.domain.product.model.BestSellingProduct(

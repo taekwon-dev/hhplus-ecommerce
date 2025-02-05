@@ -14,7 +14,7 @@ public record BestSellingProductsResponse(
                         .map(bestSellingProduct -> new BestSellingProductsResult.BestSellingProductDetail(
                                 bestSellingProduct.productId(),
                                 bestSellingProduct.name(),
-                                bestSellingProduct.price(),
+                                bestSellingProduct.salesPrice(),
                                 bestSellingProduct.stockQuantity(),
                                 bestSellingProduct.soldQuantity()
                         ))

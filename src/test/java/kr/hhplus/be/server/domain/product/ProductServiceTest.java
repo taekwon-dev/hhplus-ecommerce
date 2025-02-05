@@ -4,11 +4,11 @@ import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.model.Category;
 import kr.hhplus.be.server.domain.product.model.Product;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.domain.product.service.ProductService;
 import kr.hhplus.be.server.domain.product.service.dto.DeductStockParam;
 import kr.hhplus.be.server.infra.storage.core.ProductCoreRepository;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
-import kr.hhplus.be.server.util.fixture.ProductFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,15 +111,15 @@ class ProductServiceTest {
     @Test
     void findSellableProducts() {
         // given
-        Product product1 = ProductFixture.create(1L, 1_000, 10);
-        Product product2 = ProductFixture.create(2L, 1_000, 10);
-        Product product3 = ProductFixture.create(3L, 1_000, 10);
+        SellableProduct product1 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
+        SellableProduct product2 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
+        SellableProduct product3 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
         Pageable pageable = PageRequest.of(0, 10);
 
         when(productCoreRepository.findSellableProducts(pageable)).thenReturn(List.of(product1, product2, product3));
 
         // when
-        List<Product> products = productService.findSellableProducts(pageable);
+        List<SellableProduct> products = productService.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);

@@ -1,29 +1,25 @@
 package kr.hhplus.be.server.api.product.controller.response;
 
-import kr.hhplus.be.server.api.product.application.dto.ProductsResult;
+import kr.hhplus.be.server.api.product.application.dto.SellableProductsResult;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public record ProductsResponse(
-        List<ProductsResult.ProductDetail> products,
-        int totalPages,
-        int page,
-        int size
+        List<SellableProductsResult.ProductDetail> products
 ) {
-    public static ProductsResponse from(ProductsResult result) {
+    public static ProductsResponse from(SellableProductsResult result) {
         return new ProductsResponse(
                 result.products().stream()
-                        .map(product -> new ProductsResult.ProductDetail(
+                        .map(product -> new SellableProductsResult.ProductDetail(
                                 product.productId(),
+                                product.categoryName(),
                                 product.name(),
-                                product.price(),
-                                product.stockQuantity()
+                                product.salesPrice(),
+                                product.stockQuantity(),
+                                product.createdAt()
                         ))
-                        .collect(Collectors.toList()),
-                result.totalPages(),
-                result.page(),
-                result.size()
+                        .collect(Collectors.toList())
         );
     }
 }
