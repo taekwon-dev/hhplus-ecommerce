@@ -48,7 +48,7 @@ class OrderControllerTest extends ControllerTest {
         // given
         User user = userRepository.save(UserFixture.USER());
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
-        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 1));
         int quantity = 1;
 
         List<CreateOrderRequest.Detail> createOrderRequestDetails = List.of(new CreateOrderRequest.Detail(product.getId(), product.getSalesPrice(), quantity));

@@ -22,11 +22,13 @@ import kr.hhplus.be.server.domain.user.repository.UserRepository;
 import kr.hhplus.be.server.util.ServiceTest;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
 import kr.hhplus.be.server.util.fixture.UserFixture;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Clock;
@@ -34,6 +36,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -64,8 +68,16 @@ class ProductServiceIntegrationTest extends ServiceTest {
     @Autowired
     private OrderFacade orderFacade;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @MockitoBean
     private Clock clock;
+
+    @BeforeEach
+    void setUp() {
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+    }
 
     @DisplayName("ID 기반으로 상품을 조회한다.")
     @Test
@@ -98,7 +110,7 @@ class ProductServiceIntegrationTest extends ServiceTest {
     void deductStock() {
         // given
         Category category = categoryRepository.save(CategoryFixture.create("상의"));
-        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 1));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
 
         List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 1));
         DeductStockParam param = new DeductStockParam(deductStockParamDetails);
@@ -106,6 +118,66 @@ class ProductServiceIntegrationTest extends ServiceTest {
         // when & then
         assertThatCode(() -> productService.deductStock(param))
                 .doesNotThrowAnyException();
+    }
+
+    @DisplayName("요청한 수량만큼 상품 재고 차감 시, 재고가 0이된 경우 판매 가능한 상품 목록 캐시에서 제거한다.")
+    @Test
+    void deductStock_evictCache_whenOutOfStock() {
+        // given
+        String PRODUCT_SORTED_SET_KEY = "products:created_at:desc";
+        String PRODUCT_HASH_PREFIX = "products:";
+
+        Category category = categoryRepository.save(CategoryFixture.create("상의"));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 1));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        productService.findSellableProducts(pageable);
+
+        List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 1));
+        DeductStockParam param = new DeductStockParam(deductStockParamDetails);
+
+        // when & then
+        assertThatCode(() -> productService.deductStock(param))
+                .doesNotThrowAnyException();
+
+        String productHashKey = PRODUCT_HASH_PREFIX + product.getId();
+        Map<Object, Object> entry = redisTemplate.opsForHash().entries(productHashKey);
+        assertThat(entry).isEmpty();
+
+        int from = pageable.getPageNumber() * pageable.getPageSize();
+        int to = from + pageable.getPageSize() - 1;
+        Set<Object> zset = redisTemplate.opsForZSet().range(PRODUCT_SORTED_SET_KEY, from, to);
+        assertThat(zset).doesNotContain(String.valueOf(product.getId()));
+    }
+
+    @DisplayName("요청한 수량만큼 상품 재고 차감 이후, 재고가 1보다 큰 경우 판매 가능한 상품 목록 캐시에서 유지된다.")
+    @Test
+    void deductStock_evictCache_whenStockIsPositive() {
+        // given
+        String PRODUCT_SORTED_SET_KEY = "products:created_at:desc";
+        String PRODUCT_HASH_PREFIX = "products:";
+
+        Category category = categoryRepository.save(CategoryFixture.create("상의"));
+        Product product = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨", category, 12_000, 10));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        productService.findSellableProducts(pageable);
+
+        List<DeductStockParam.Detail> deductStockParamDetails = List.of(new DeductStockParam.Detail(product.getId(), 1));
+        DeductStockParam param = new DeductStockParam(deductStockParamDetails);
+
+        // when & then
+        assertThatCode(() -> productService.deductStock(param))
+                .doesNotThrowAnyException();
+
+        String productHashKey = PRODUCT_HASH_PREFIX + product.getId();
+        Map<Object, Object> entry = redisTemplate.opsForHash().entries(productHashKey);
+        assertThat(entry).isNotEmpty();
+
+        int from = pageable.getPageNumber() * pageable.getPageSize();
+        int to = from + pageable.getPageSize() - 1;
+        Set<Object> zset = redisTemplate.opsForZSet().range(PRODUCT_SORTED_SET_KEY, from, to);
+        assertThat(zset).contains(String.valueOf(product.getId()));
     }
 
     @DisplayName("상품 재고 차감 시, 요청한 수량보다 상품의 재고가 부족한 경우 예외가 발생한다.")
@@ -138,6 +210,51 @@ class ProductServiceIntegrationTest extends ServiceTest {
 
         // then
         assertThat(products).hasSize(3);
+    }
+
+    @DisplayName("판매 가능한 모든 상품 목록을 조회 시, 캐시 미스인 경우 캐시에 데이터를 업데이트한다.")
+    @Test
+    void findSellableProducts_whenCacheMiss() {
+        // given
+        String PRODUCT_SORTED_SET_KEY = "products:created_at:desc";
+        String PRODUCT_HASH_PREFIX = "products:";
+
+        Category category = categoryRepository.save(CategoryFixture.create("상의"));
+        Product product1 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨1", category, 10_000, 50));
+        Product product2 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨2", category, 10_000, 50));
+        Product product3 = productRepository.save(new Product("라넌큘러스 오버핏 맨투맨3", category, 10_000, 50));
+        Pageable pageable = PageRequest.of(0, 10);
+
+        productService.findSellableProducts(pageable);
+
+        // when
+        List<SellableProduct> products = productService.findSellableProducts(pageable);
+
+        // then
+        assertThat(products).hasSize(3);
+
+        String productHashKey1 = PRODUCT_HASH_PREFIX + product1.getId();
+        String productHashKey2 = PRODUCT_HASH_PREFIX + product2.getId();
+        String productHashKey3 = PRODUCT_HASH_PREFIX + product3.getId();
+
+        Map<Object, Object> entry1 = redisTemplate.opsForHash().entries(productHashKey1);
+        Map<Object, Object> entry2 = redisTemplate.opsForHash().entries(productHashKey2);
+        Map<Object, Object> entry3 = redisTemplate.opsForHash().entries(productHashKey3);
+
+        assertThat(entry1).isNotEmpty();
+        assertThat(entry2).isNotEmpty();
+        assertThat(entry3).isNotEmpty();
+
+        assertThat(entry1.get("name")).isEqualTo("라넌큘러스 오버핏 맨투맨1");
+        assertThat(entry2.get("name")).isEqualTo("라넌큘러스 오버핏 맨투맨2");
+        assertThat(entry3.get("name")).isEqualTo("라넌큘러스 오버핏 맨투맨3");
+
+        int from = pageable.getPageNumber() * pageable.getPageSize();
+        int to = from + pageable.getPageSize() - 1;
+        Set<Object> zset = redisTemplate.opsForZSet().range(PRODUCT_SORTED_SET_KEY, from, to);
+        assertThat(zset).contains(String.valueOf(product1.getId()));
+        assertThat(zset).contains(String.valueOf(product2.getId()));
+        assertThat(zset).contains(String.valueOf(product3.getId()));
     }
 
     @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")
