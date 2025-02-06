@@ -26,7 +26,7 @@ public class CouponService {
 
     @Transactional
     public Coupon issue(long userId, long couponId) {
-        Coupon coupon = couponRepository.findByIdWithLock(couponId);
+        Coupon coupon = couponRepository.findById(couponId);
         coupon.issue();
         if (issuedCouponRepository.existsByUserIdAndCoupon(userId, coupon)) {
             throw new AlreadyIssuedCouponException();
