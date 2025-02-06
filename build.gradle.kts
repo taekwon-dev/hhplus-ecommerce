@@ -36,7 +36,6 @@ dependencyManagement {
 
 dependencies {
     // Spring
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
@@ -65,6 +64,7 @@ dependencies {
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("io.rest-assured:rest-assured:5.3.1")
+	testImplementation("org.awaitility:awaitility:4.2.0")
 
 	// Docs
 	configurations["asciidoctorExt"]("org.springframework.restdocs:spring-restdocs-asciidoctor")

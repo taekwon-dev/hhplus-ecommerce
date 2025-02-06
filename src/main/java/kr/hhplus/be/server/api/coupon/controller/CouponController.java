@@ -1,14 +1,13 @@
 package kr.hhplus.be.server.api.coupon.controller;
 
 import kr.hhplus.be.server.api.coupon.application.dto.AvailableCouponsResult;
-import kr.hhplus.be.server.api.coupon.application.dto.IssueCouponResult;
 import kr.hhplus.be.server.api.coupon.controller.dto.request.IssueCouponRequest;
 import kr.hhplus.be.server.api.coupon.controller.dto.response.AvailableCouponsResponse;
-import kr.hhplus.be.server.api.coupon.controller.dto.response.IssueCouponResponse;
 import kr.hhplus.be.server.api.coupon.application.CouponFacade;
 import kr.hhplus.be.server.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +25,8 @@ public class CouponController {
     }
 
     @PostMapping
-    public ResponseEntity<IssueCouponResponse> issueCoupon(User user, @RequestBody IssueCouponRequest request) {
-        IssueCouponResult result = couponFacade.issue(user.getId(), request.couponId());
-        return ResponseEntity.ok(IssueCouponResponse.from(result));
+    public ResponseEntity<Void> issueCoupon(User user, @RequestBody IssueCouponRequest request) {
+        couponFacade.sendCouponIssueRequest(user.getId(), request.couponId());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }

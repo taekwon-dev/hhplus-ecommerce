@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+@DisplayName("쿠폰 Service 단위 테스트")
 @ExtendWith(MockitoExtension.class)
 class CouponServiceTest {
     
@@ -76,7 +77,7 @@ class CouponServiceTest {
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
         IssuedCoupon issuedCoupon = new IssuedCoupon(user.getId(), coupon);
         
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
         when(issuedCouponCoreRepository.existsByUserIdAndCoupon(user.getId(), coupon)).thenReturn(false);
         when(issuedCouponCoreRepository.save(issuedCoupon)).thenReturn(issuedCoupon);
         when(couponCoreRepository.save(coupon)).thenReturn(coupon);
@@ -87,7 +88,7 @@ class CouponServiceTest {
         // then
         assertThat(issuedCoupon1.getIssuedCount()).isEqualTo(1);
 
-        verify(couponCoreRepository, times(1)).findByIdWithLock(coupon.getId());
+        verify(couponCoreRepository, times(1)).findById(coupon.getId());
         verify(issuedCouponCoreRepository, times(1)).existsByUserIdAndCoupon(user.getId(), coupon);
         verify(issuedCouponCoreRepository, times(1)).save(issuedCoupon);
         verify(couponCoreRepository, times(1)).save(coupon);
@@ -102,7 +103,7 @@ class CouponServiceTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 0);
 
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
 
         // when & then
         assertThatThrownBy(() -> couponService.issue(user.getId(), coupon.getId()))
@@ -118,7 +119,7 @@ class CouponServiceTest {
         LocalDateTime endDate = startDate.plusWeeks(1);
         Coupon coupon = CouponFixture.create(1L, CouponDiscountType.RATE, 10, startDate, endDate, 10);
 
-        when(couponCoreRepository.findByIdWithLock(coupon.getId())).thenReturn(coupon);
+        when(couponCoreRepository.findById(coupon.getId())).thenReturn(coupon);
         when(issuedCouponCoreRepository.existsByUserIdAndCoupon(user.getId(), coupon)).thenReturn(true);
 
         // when & then

@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.infra.cache.config;
+package kr.hhplus.be.server.infra.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -12,7 +12,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableCaching
-public class RedisCacheConfig {
+public class RedisTemplateClientConfig {
 
     @Value("${spring.data.redis.host}")
     private String host;

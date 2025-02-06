@@ -46,3 +46,10 @@ springdoc:
     urls:
       - name: E-Commerce API
         url: openapi.yml
+
+schedules:
+  cron:
+    coupon:
+      issue: "*/5 * * * * *"
+  batch:
+    coupon-issue-size: 10
