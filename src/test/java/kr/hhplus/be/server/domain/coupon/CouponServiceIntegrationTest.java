@@ -18,13 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -106,59 +100,5 @@ class CouponServiceIntegrationTest extends ServiceTest {
         // when & then
         assertThatThrownBy(() -> couponService.issue(user.getId(), coupon.getId()))
                 .isInstanceOf(AlreadyIssuedCouponException.class);
-    }
-
-    /**
-     * 20명이 동시에 쿠폰 발급을 시도하고, 모든 쿠폰이 발급된 경우 예외 발생을 검증하는 테스트입니다. (성공: 10명, 실패: 10명)
-     */
-    @DisplayName("최대 발급 수량이 10개인 쿠폰을 20명의 서로 다른 유저가 쿠폰 발급을 신청할 때, 10개의 쿠폰이 모두 발급된 경우 나머지 10명은 쿠폰 발급에 실패한다.")
-    @Test
-    void issueConcurrently_exceededMaxIssuableCount() throws InterruptedException {
-        // given
-        LocalDateTime startDate = LocalDateTime.now();
-        LocalDateTime endDate = startDate.plusWeeks(1);
-        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 10));
-
-        int threads = 20;
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failCount = new AtomicInteger(0);
-
-        List<User> users = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            users.add(userRepository.save(UserFixture.USER()));
-        }
-
-        // when
-        executeConcurrency(threads, idx -> {
-            try {
-                couponService.issue(users.get(idx).getId(), coupon.getId());
-                successCount.incrementAndGet();
-            } catch (MaxIssuableCountExceededException e) {
-                failCount.incrementAndGet();
-            }
-        });
-
-        // then
-        assertThat(successCount.get()).isEqualTo(10);
-        assertThat(failCount.get()).isEqualTo(10);
-    }
-
-    private void executeConcurrency(int threads, Consumer<Integer> task) throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(threads);
-        ExecutorService executor = Executors.newFixedThreadPool(threads);
-
-        for (int i = 0; i < threads; i++) {
-            int idx = i;
-            executor.execute(() -> {
-                try {
-                    task.accept(idx);
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await();
-        executor.shutdown();
     }
 }

@@ -1,9 +1,10 @@
 package kr.hhplus.be.server.api.coupon.application;
 
 import kr.hhplus.be.server.api.coupon.application.dto.AvailableCouponsResult;
-import kr.hhplus.be.server.api.coupon.application.dto.IssueCouponResult;
 import kr.hhplus.be.server.domain.coupon.model.Coupon;
+import kr.hhplus.be.server.domain.coupon.service.CouponIssueManager;
 import kr.hhplus.be.server.domain.coupon.service.CouponService;
+import kr.hhplus.be.server.domain.coupon.service.dto.CouponIssueParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 public class CouponFacade {
 
     private final CouponService couponService;
+    private final CouponIssueManager couponIssueRequestManager;
 
     @Transactional(readOnly = true)
     public AvailableCouponsResult findAvailableCoupons(long userId, Pageable pageable) {
@@ -23,9 +25,7 @@ public class CouponFacade {
         return AvailableCouponsResult.from(coupons);
     }
 
-    @Transactional
-    public IssueCouponResult issue(long userId, Long couponId) {
-        Coupon coupon = couponService.issue(userId, couponId);
-        return IssueCouponResult.from(coupon);
+    public void sendCouponIssueRequest(long userId, Long couponId) {
+        couponIssueRequestManager.publish(new CouponIssueParam(userId, couponId));
     }
 }

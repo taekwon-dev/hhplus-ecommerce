@@ -16,6 +16,7 @@ import kr.hhplus.be.server.util.fixture.UserFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import java.time.LocalDateTime;
@@ -28,13 +29,6 @@ class CouponControllerTest extends ControllerTest {
 
     private static final FieldDescriptor[] ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS = {
             fieldWithPath("couponId").description("유저에게 발급할 쿠폰 ID")
-    };
-
-    private static final FieldDescriptor[] ISSUE_COUPON_RESPONSE_FIELD_DESCRIPTORS = {
-            fieldWithPath("couponId").description("쿠폰 ID"),
-            fieldWithPath("code").description("쿠폰 코드"),
-            fieldWithPath("startDate").description("쿠폰 사용 시작일 (UTC 표준)"),
-            fieldWithPath("endDate").description("쿠폰 사용 종료일 (UTC 표준)")
     };
 
     private static final FieldDescriptor[] AVAILABLE_COUPONS_RESPONSE_FIELD_DESCRIPTORS = {
@@ -118,7 +112,7 @@ class CouponControllerTest extends ControllerTest {
                 .then().log().all().statusCode(401);
     }
 
-    @DisplayName("쿠폰 발급 성공 시, 200을 응답한다.")
+    @DisplayName("쿠폰 발급 요청 시, 202을 응답한다.")
     @Test
     void issueCoupon() {
         // given
@@ -134,11 +128,10 @@ class CouponControllerTest extends ControllerTest {
                 .header("Authorization", "Bearer " + user.getId())
                 .body(request)
                 .filter(document("coupon/issue",
-                        requestFields(ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS),
-                        responseFields(ISSUE_COUPON_RESPONSE_FIELD_DESCRIPTORS)
+                        requestFields(ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS)
                 ))
                 .when().post("/v1/coupons")
-                .then().log().all().statusCode(200);
+                .then().log().all().statusCode(HttpStatus.ACCEPTED.value());
     }
 
     @DisplayName("쿠폰 발급 시, 인증 토큰이 유효하지 않은 경우 401 에러가 발생한다.")
@@ -183,60 +176,5 @@ class CouponControllerTest extends ControllerTest {
                 ))
                 .when().post("/v1/coupons")
                 .then().log().all().statusCode(401);
-    }
-
-    @DisplayName("쿠폰 발급 시, 해당 쿠폰이 모두 소진된 경우 400 에러가 발생한다.")
-    @Test
-    void issueCoupon_exceededMaxIssuableCount() {
-        // given
-        User user = userRepository.save(UserFixture.USER());
-        LocalDateTime startDate = LocalDateTime.now();
-        LocalDateTime endDate = startDate.plusWeeks(1);
-        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 0));
-        IssueCouponRequest request = new IssueCouponRequest(coupon.getId());
-
-        // when & then
-        RestAssured.given(spec).log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + user.getId())
-                .body(request)
-                .filter(document("coupon/issue",
-                        requestFields(ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS)
-                ))
-                .when().post("/v1/coupons")
-                .then().log().all().statusCode(400);
-    }
-
-    @DisplayName("쿠폰 발급 시, 이미 발급된 쿠폰을 중복해서 발급 요청한 경우 400 에러가 발생한다.")
-    @Test
-    void issueCoupon_alreadyIssuedCoupon() {
-        // given
-        User user = userRepository.save(UserFixture.USER());
-        LocalDateTime startDate = LocalDateTime.now();
-        LocalDateTime endDate = startDate.plusWeeks(1);
-        Coupon coupon = couponRepository.save(CouponFixture.create(CouponDiscountType.RATE, 10, startDate, endDate, 1));
-        IssueCouponRequest request = new IssueCouponRequest(coupon.getId());
-
-        RestAssured.given(spec).log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + user.getId())
-                .body(request)
-                .filter(document("coupon/issue",
-                        requestFields(ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS),
-                        responseFields(ISSUE_COUPON_RESPONSE_FIELD_DESCRIPTORS)
-                ))
-                .when().post("/v1/coupons")
-                .then().log().all().statusCode(200);
-
-        // when & then
-        RestAssured.given(spec).log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + user.getId())
-                .body(request)
-                .filter(document("coupon/issue",
-                        requestFields(ISSUE_COUPON_REQUEST_FIELD_DESCRIPTORS)
-                ))
-                .when().post("/v1/coupons")
-                .then().log().all().statusCode(400);
     }
 }
