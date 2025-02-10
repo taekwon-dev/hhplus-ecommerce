@@ -42,6 +42,11 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 	implementation("org.redisson:redisson-spring-boot-starter:3.18.0")
 
+	// Cache
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
+
 	// Monitoring
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("io.micrometer:micrometer-registry-prometheus")

@@ -3,7 +3,7 @@ package kr.hhplus.be.server.api.product.application;
 import kr.hhplus.be.server.api.order.application.dto.request.CreateOrderParam;
 import kr.hhplus.be.server.api.payment.application.dto.request.PaymentParam;
 import kr.hhplus.be.server.api.product.application.dto.BestSellingProductsResult;
-import kr.hhplus.be.server.api.product.application.dto.ProductsResult;
+import kr.hhplus.be.server.api.product.application.dto.SellableProductsResult;
 import kr.hhplus.be.server.api.order.application.OrderFacade;
 import kr.hhplus.be.server.api.payment.application.PaymentFacade;
 import kr.hhplus.be.server.domain.payment.domain.PaymentMethod;
@@ -72,11 +72,11 @@ class ProductFacadeTest extends ServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        ProductsResult result = productFacade.findSellableProducts(pageable);
+        SellableProductsResult result = productFacade.findSellableProducts(pageable);
 
         // then
         assertThat(result.products()).hasSize(3);
-        assertThat(result.products()).extracting(ProductsResult.ProductDetail::name)
+        assertThat(result.products()).extracting(SellableProductsResult.ProductDetail::name)
                 .containsExactlyInAnyOrder("라넌큘러스 오버핏 맨투맨1", "라넌큘러스 오버핏 맨투맨2", "라넌큘러스 오버핏 맨투맨3");
     }
 

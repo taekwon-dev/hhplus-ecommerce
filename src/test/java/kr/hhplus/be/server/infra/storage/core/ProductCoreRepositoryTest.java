@@ -6,6 +6,7 @@ import kr.hhplus.be.server.domain.order.model.OrderStatus;
 import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.model.Category;
 import kr.hhplus.be.server.domain.product.model.Product;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.infra.storage.core.jpa.repository.ProductJpaRepository;
 import kr.hhplus.be.server.domain.user.domain.User;
 import kr.hhplus.be.server.util.fixture.CategoryFixture;
@@ -17,8 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -67,21 +66,21 @@ class ProductCoreRepositoryTest {
     @Test
     void findAllProducts() {
         // given
-        Product product1 = ProductFixture.create(1L, 1_000, 10);
-        Product product2 = ProductFixture.create(2L, 1_000, 10);
-        Product product3 = ProductFixture.create(3L, 1_000, 10);
+        SellableProduct product1 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
+        SellableProduct product2 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
+        SellableProduct product3 = new SellableProduct(1L, "상의", "라넌큘러스 오버핏 맨투맨", 10_000, 10, LocalDateTime.now());
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(productJpaRepository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(product1, product2, product3)));
+        when(productJpaRepository.findSellableProducts(pageable)).thenReturn(List.of(product1, product2, product3));
 
         // when
-        Page<Product> products = productCoreRepository.findSellableProducts(pageable);
+        List<SellableProduct> products = productCoreRepository.findSellableProducts(pageable);
 
         // then
         assertThat(products).hasSize(3);
         assertThat(products).contains(product1, product2, product3);
 
-        verify(productJpaRepository, times(1)).findAll(pageable);
+        verify(productJpaRepository, times(1)).findSellableProducts(pageable);
     }
 
     @DisplayName("지난 3일 동안 가장 많이 팔린 상위 5개 상품 목록을 조회한다.")

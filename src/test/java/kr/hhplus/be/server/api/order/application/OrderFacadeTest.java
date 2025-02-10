@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import kr.hhplus.be.server.api.order.application.dto.request.CreateOrderParam;
 import kr.hhplus.be.server.domain.order.model.Order;
 import kr.hhplus.be.server.domain.order.model.OrderStatus;
+import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
 import kr.hhplus.be.server.domain.product.model.Category;
 import kr.hhplus.be.server.domain.product.model.Product;
 import kr.hhplus.be.server.domain.product.exception.InsufficientStockException;
@@ -132,7 +133,7 @@ class OrderFacadeTest extends ServiceTest {
         assertThat(successCount.get()).isEqualTo(20);
         assertThat(failCount.get()).isEqualTo(10);
 
-        Product foundProduct = productRepository.findById(product.getId());
+        Product foundProduct = productRepository.findById(product.getId()).orElseThrow(ProductNotFoundException::new);
         assertThat(foundProduct.getStockQuantity()).isZero();
     }
 

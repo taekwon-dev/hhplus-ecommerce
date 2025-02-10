@@ -1,11 +1,13 @@
 package kr.hhplus.be.server.domain.product.service;
 
+import kr.hhplus.be.server.domain.product.exception.ProductNotFoundException;
+import kr.hhplus.be.server.domain.product.model.SellableProduct;
 import kr.hhplus.be.server.domain.product.repository.ProductRepository;
 import kr.hhplus.be.server.domain.product.model.BestSellingProduct;
 import kr.hhplus.be.server.domain.product.service.dto.DeductStockParam;
 import kr.hhplus.be.server.domain.product.model.Product;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +24,25 @@ public class ProductService {
     private final Clock clock;
 
     @Transactional(readOnly = true)
-    public Product findById(Long id) {
-        return productRepository.findById(id);
+    public Product findProductById(Long id) {
+        return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
     @Transactional
     public void deductStock(DeductStockParam param) {
         for (DeductStockParam.Detail deductStockDetail : param.deductStockParamDetails()) {
-            Product product = productRepository.findByIdWithLock(deductStockDetail.productId());
-            product.deductStock(deductStockDetail.quantity());
+            deductStock(deductStockDetail.productId(), deductStockDetail.quantity());
         }
     }
 
+    @Transactional
+    public void deductStock(long productId, int quantity) {
+        Product product = productRepository.findByIdWithLock(productId).orElseThrow(ProductNotFoundException::new);
+        product.deductStock(quantity);
+    }
+
     @Transactional(readOnly = true)
-    public Page<Product> findSellableProducts(Pageable pageable) {
+    public List<SellableProduct> findSellableProducts(Pageable pageable) {
         return productRepository.findSellableProducts(pageable);
     }
 
