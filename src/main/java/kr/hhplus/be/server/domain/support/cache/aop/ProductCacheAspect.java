@@ -26,7 +26,6 @@ public class ProductCacheAspect {
         Pageable pageable = (Pageable) joinPoint.getArgs()[0];
         Object cachedProducts = productCacheManager.fetchSellableProducts(pageable);
         if (!((List<?>) cachedProducts).isEmpty()) {
-            System.out.println("캐시 리턴");
             return cachedProducts;
         }
 
